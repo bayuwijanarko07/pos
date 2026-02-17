@@ -1,29 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import CashierPage from '@/pages/CashierPage.vue'
-import ReportPage from '@/pages/ReportPage.vue'
-import ProductsPage from '@/pages/ProductsPage.vue'
-
 const routes = [
-    {
-        path: '/',
-        redirect: '/cashier'
-    },
-    {
-        path: '/cashier',
-        name: 'Cashier',
-        component: CashierPage
-    },
-    {
-        path: '/products',
-        name: 'Products',
-        component: ProductsPage
-    },
-    {
-        path: '/report',
-        name: 'Report',
-        component: ReportPage
-    },
+    { path: '/', redirect: '/cashier' },
+    { path: '/cashier', component: () => import('@/pages/CashierPage.vue') },
+    { path: '/products', component: () => import('@/pages/ProductsPage.vue') },
+    { path: '/report', component: () => import('@/pages/ReportPage.vue')}
 ]
 
 export default createRouter({
