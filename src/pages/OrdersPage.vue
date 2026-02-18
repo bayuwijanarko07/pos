@@ -21,13 +21,13 @@
       </Card>
     </div>
 
-    <Chart :cart="cartStore.cart"/>
+    <Cart :cart="cartStore.cart"/>
   </div>
 </template>
 
 <script setup lang="ts">
   import Card from '@/components/Card.vue'
-  import Chart from '@/components/Chart.vue'
+  import Cart from '@/components/Cart.vue'
   import { useCartStore } from '@/stores/cart'
 
   const imageModules = import.meta.glob('@/assets/images/products/*', {
