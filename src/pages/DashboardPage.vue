@@ -2,5 +2,5 @@
   <h1>Halaman Report (POS)</h1>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 </script>

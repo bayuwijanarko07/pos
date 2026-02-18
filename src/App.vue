@@ -1,11 +1,10 @@
 <template>
-  <div class="app">
-    <nav>
-      <router-link to="/cashier">Kasir</router-link>
-      <router-link to="/products">Produk</router-link>
-      <router-link to="/report">Laporan</router-link>
-    </nav>
-
-    <router-view />
-  </div>
+  <DefaultLayout>
+    <RouterView />
+  </DefaultLayout>
 </template>
+
+<script setup lang="ts">
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+
+</script>
