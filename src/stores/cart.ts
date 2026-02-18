@@ -44,50 +44,78 @@ export const useCartStore = defineStore('cart', {
       productStore.decreaseStock(product.id, 1)
     },
 
+    updateQty(id: number, newQty: number){
+        const productStore = useProductStore()
+        const item = this.cart.find(i => i.id === id)
+        const stock = productStore.getStock(id)
+
+        if (!item) return
+
+        if (isNaN(newQty) || newQty < 1) {
+            newQty = 1
+        }
+ 
+        const currentQty = item.qty
+        const diff = newQty - currentQty
+        const maxQty = item.qty + stock
+
+        if (newQty > maxQty) {
+            newQty = maxQty
+        }
+
+        if (diff > 0) {
+            productStore.decreaseStock(id, diff)
+        } else if (diff < 0) {
+            productStore.increaseStock(id, Math.abs(diff))
+        }
+
+        item.qty = newQty
+    },
+
     increaseQty(id: number) {
-      const productStore = useProductStore()
-      const stock = productStore.getStock(id)
+        const productStore = useProductStore()
+        const stock = productStore.getStock(id)
 
-      if (stock <= 0) return
+        if (stock <= 0) return
 
-      const item = this.cart.find(i => i.id === id)
-      if (!item) return
+        const item = this.cart.find(i => i.id === id)
+        if (!item) return
 
-      item.qty += 1
-      productStore.decreaseStock(id, 1)
+        item.qty += 1
+        productStore.decreaseStock(id, 1)
     },
 
     decreaseQty(id: number) {
-      const productStore = useProductStore()
-      const item = this.cart.find(i => i.id === id)
-      if (!item) return
+        const productStore = useProductStore()
+        const item = this.cart.find(i => i.id === id)
+        if (!item) return
 
-      item.qty -= 1
-      productStore.increaseStock(id, 1)
+        item.qty -= 1
+        productStore.increaseStock(id, 1)
 
-      if (item.qty <= 0) {
-        this.removeFromCart(id)
-      }
+        if (item.qty <= 0) {
+            this.removeFromCart(id)
+        }
     },
 
     removeFromCart(id: number) {
-      const productStore = useProductStore()
-      const item = this.cart.find(i => i.id === id)
-      if (!item) return
+        const productStore = useProductStore()
+        const item = this.cart.find(i => i.id === id)
+        if (!item) return
 
-      productStore.increaseStock(id, item.qty)
+        productStore.increaseStock(id, item.qty)
 
-      this.cart = this.cart.filter(i => i.id !== id)
+        this.cart = this.cart.filter(i => i.id !== id)
     },
 
     clearCart() {
-      const productStore = useProductStore()
+        const productStore = useProductStore()
 
-      this.cart.forEach(item => {
-        productStore.increaseStock(item.id, item.qty)
-      })
+        this.cart.forEach(item => {
+            productStore.increaseStock(item.id, item.qty)
+        })
 
-      this.cart = []
+        this.cart = []
     }
   },
 

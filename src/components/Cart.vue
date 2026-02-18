@@ -11,37 +11,35 @@
                 :key="item.id"
                 class="flex mb-1 p-1 bg-zinc-200 rounded">
                 <img :src="item.img" :alt="item.title" class="rounded h-10 w-10 mr-2 object-cover">
-                <div>
-                    <p class="text-xs">{{ item.title }}</p>
-                    <p class="text-xs text-gray-400">
-                        Rp {{ item.price }} x {{ item.qty }}
-                    </p>
+                <div class="flex flex-col justify-center grow">
+                    <span class="text-xs">{{ item.title }}</span>
+                    <span class="text-xs text-gray-400">
+                        Rp {{ item.price }}
+                    </span>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button
-                        class="px-2 bg-gray-200 rounded"
-                        @click="decreaseQty(item)"
-                        >
-                        -
-                    </button>
+                    <button class="px-2 py-1 bg-gray-300 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                        :disabled="item.qty <= 0"
+                        @click="decreaseQty(item)">-</button>
 
-                    <button
-                        class="px-2 bg-gray-200 rounded"
+                    <input
+                        class="w-10 text-center bg-gray-100 rounded py-1 disabled:cursor-not-allowed disabled:opacity-50"
+                        type="number"
+                        min="1"
+                        :max="getStock(item.id) + item.qty"
+                        @input="updateQty(item, $event)"
+                        :value="item.qty"
+                    />
+
+                    <button class="px-2 py-1 bg-gray-300 rounded cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
                         :disabled="getStock(item.id) <= 0"
-                        @click="increaseQty(item)"
-                    >
-                        +
-                    </button>
+                        @click="increaseQty(item)">+</button>
 
-                    <button
-                        class="px-2 bg-red-500 text-white rounded text-xs"
-                        @click="removeItem(item)"
-                        >
-                        Hapus
-                    </button>
+                    <button class="px-2 py-1 bg-red-500 text-white rounded text-xs cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                        @click="removeItem(item)">Hapus</button>
+                    </div>
                 </div>
-            </div>
 
             <div class="mt-4 font-bold">
                 Total: Rp {{ cartStore.totalPrice }}
@@ -53,7 +51,7 @@
     import { useCartStore } from '@/stores/cart'
     import { useProductStore } from '@/stores/products'
 
-   const cartStore = useCartStore()
+    const cartStore = useCartStore()
     const productStore = useProductStore()
 
     const getStock = (id: number) => {
@@ -62,6 +60,12 @@
 
     const increaseQty = (item: any) => {
         cartStore.increaseQty(item.id)
+    }
+
+    const updateQty = (item: any, event: Event) => {
+        const target = event.target as HTMLInputElement
+        const value = Number(target.value)
+        cartStore.updateQty(item.id, value)
     }
 
     const decreaseQty = (item: any) => {
