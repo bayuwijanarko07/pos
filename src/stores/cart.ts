@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useProductStore } from '@/stores/products'
 
 export interface CartItem {
   id: number
@@ -10,33 +11,85 @@ export interface CartItem {
 }
 
 export const useCartStore = defineStore('cart', {
-    state: () => ({
-        cart: [] as CartItem []
-    }),
+  state: () => ({
+    cart: [] as CartItem[]
+  }),
 
-    getters: {
-        totalPrice: (state) =>
-         state.cart.reduce((total, item) => {
-            return total + item.price * item.qty
-        }, 0),
+  getters: {
+    totalPrice: (state) =>
+      state.cart.reduce((total, item) => total + item.price * item.qty, 0),
 
-        totalItems: (state) =>
-        state.cart.reduce((total, item) => total + item.qty, 0)
+    totalItems: (state) =>
+      state.cart.reduce((total, item) => total + item.qty, 0)
+  },
+
+  actions: {
+    addToCart(product: Omit<CartItem, 'qty'>) {
+      const productStore = useProductStore()
+      const stock = productStore.getStock(product.id)
+
+      if (stock <= 0) return
+
+      const existing = this.cart.find(item => item.id === product.id)
+
+      if (existing) {
+        existing.qty += 1
+      } else {
+        this.cart.push({
+          ...product,
+          qty: 1
+        })
+      }
+
+      productStore.decreaseStock(product.id, 1)
     },
 
-    actions: {
-        addToCart(menu: Omit<CartItem, 'qty'>) {
-            const existing = this.cart.find(item => item.id === menu.id)
+    increaseQty(id: number) {
+      const productStore = useProductStore()
+      const stock = productStore.getStock(id)
 
-            if (existing) {
-                existing.qty += 1
-            } else {
-                this.cart.push({
-                    ...menu,
-                    qty: 1
-                })
-            }
-        },
+      if (stock <= 0) return
+
+      const item = this.cart.find(i => i.id === id)
+      if (!item) return
+
+      item.qty += 1
+      productStore.decreaseStock(id, 1)
     },
-    persist: true,
+
+    decreaseQty(id: number) {
+      const productStore = useProductStore()
+      const item = this.cart.find(i => i.id === id)
+      if (!item) return
+
+      item.qty -= 1
+      productStore.increaseStock(id, 1)
+
+      if (item.qty <= 0) {
+        this.removeFromCart(id)
+      }
+    },
+
+    removeFromCart(id: number) {
+      const productStore = useProductStore()
+      const item = this.cart.find(i => i.id === id)
+      if (!item) return
+
+      productStore.increaseStock(id, item.qty)
+
+      this.cart = this.cart.filter(i => i.id !== id)
+    },
+
+    clearCart() {
+      const productStore = useProductStore()
+
+      this.cart.forEach(item => {
+        productStore.increaseStock(item.id, item.qty)
+      })
+
+      this.cart = []
+    }
+  },
+
+  persist: true
 })

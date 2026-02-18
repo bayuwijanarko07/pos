@@ -1,15 +1,24 @@
 <template>
-  <div class="flex sm:flex-row space-x-4 space-y-4">
+  <div class="flex sm:flex-row gap-4">
     <div class="grid sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1">
       <Card 
-        v-for="menu in menus" 
+        v-for="menu in productStore.products" 
         :key="menu.id"
         class="cursor-pointer"
-        @click="addToCart(menu)">
+        :class="menu.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
+        @click="menu.stock > 0 && cartStore.addToCart(menu)">
         <img :src="menu.img" :alt="menu.title" class="object-cover">
-        <h5 class="font-medium text-muted">
-          {{ menu.title }}
-        </h5>
+        <div class="flex justify-between">
+          <h5 class="font-medium text-muted">{{ menu.title }}</h5>
+          <h5 class="font-medium text-muted">
+            <span v-if="menu.stock > 0">
+              Qty: {{ menu.stock }}
+            </span>
+            <span v-else class="text-red-500 font-semibold">
+              Out of Stock
+            </span>
+          </h5>
+        </div>
         <div class="flex justify-between">
             <span class="inline-flex items-center rounded-md bg-gray-400/10 px-2 py-1 text-xs font-medium text-gray-400 inset-ring inset-ring-gray-400/20">
               {{ menu.category }}
@@ -25,10 +34,15 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts">  
+  import { onMounted } from 'vue'
   import Card from '@/components/Card.vue'
   import Cart from '@/components/Cart.vue'
   import { useCartStore } from '@/stores/cart'
+  import { useProductStore } from '@/stores/products'
+
+  const cartStore = useCartStore()
+  const productStore = useProductStore()
 
   const imageModules = import.meta.glob('@/assets/images/products/*', {
     eager: true,
@@ -40,48 +54,42 @@
     return imageModules[path] ?? ''
   }
 
-  const menus = [
-    {
-      id: 1,
-      title: 'Iced Coffe Latte',
-      img: getImage('coffe-latte.png'),
-      price: 18000,
-      category: 'drinks'
-    },
-    {
-      id: 2,
-      title: 'Iced Chocolate',
-      img: getImage('ice-chocolate.png'),
-      price: 12000,
-      category: 'drinks'
-    },
-    {
-      id: 3,
-      title: 'Iced Tea',
-      img: getImage('ice-tea.png'),
-      price: 5000,
-      category: 'drinks'
-    },
-    {
-      id: 4,
-      title: 'Iced Matcha Latte',
-      img: getImage('matcha-latte.png'),
-      price: 16000,
-      category: 'drinks'
-    },
-  ]
-
-  interface Menu {
-    id: number
-    title: string
-    img: string
-    price: number
-    category: string
-  }
-
-  const cartStore = useCartStore()
-
-  const addToCart = (menu: Menu) => {
-    cartStore.addToCart(menu)
-  }
+  onMounted(() => {
+    if (productStore.products.length === 0) {
+      productStore.setProducts([
+        {
+          id: 1,
+          title: 'Iced Coffe Latte',
+          img: getImage('coffe-latte.png'),
+          price: 18000,
+          category: 'drinks',
+          stock: 15,
+        },
+        {
+          id: 2,
+          title: 'Iced Chocolate',
+          img: getImage('ice-chocolate.png'),
+          price: 12000,
+          category: 'drinks',
+          stock: 8,
+        },
+        {
+          id: 3,
+          title: 'Iced Tea',
+          img: getImage('ice-tea.png'),
+          price: 5000,
+          category: 'drinks',
+          stock: 6,
+        },
+        {
+          id: 4,
+          title: 'Iced Matcha Latte',
+          img: getImage('matcha-latte.png'),
+          price: 16000,
+          category: 'drinks',
+          stock: 8,
+        },
+      ])
+    }
+  })
 </script>
