@@ -4,7 +4,7 @@
       <Card 
         v-for="menu in productStore.products" 
         :key="menu.id"
-        class="cursor-pointer"
+        class="cursor-pointer p-5 md:p-6 space-y-2"
         :class="menu.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
         @click="menu.stock > 0 && cartStore.addToCart(menu)">
         <img :src="menu.img" :alt="menu.title" class="object-cover">
@@ -34,10 +34,7 @@
   </div>
 </template>
 
-<script setup lang="ts">  
-  import { onMounted } from 'vue'
-  import Card from '@/components/Card.vue'
-  import Cart from '@/components/Cart.vue'
+<script setup lang="ts">
   import { useCartStore } from '@/stores/cart'
   import { useProductStore } from '@/stores/products'
 
