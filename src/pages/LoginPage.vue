@@ -43,7 +43,7 @@
                         </button>
                         <p v-if="error" class="text-red-500 mt-3">{{ error }}</p>
                     </form>
-                    <div class="relative py-3 sm:py-5">
+                    <!-- <div class="relative py-3 sm:py-5">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-200"></div>
                         </div>
@@ -55,7 +55,7 @@
                         <button class="cursor-pointer inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800">
                             <Icon icon="mdi:google" />
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>

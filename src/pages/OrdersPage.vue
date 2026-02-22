@@ -4,7 +4,7 @@
       <Card 
         v-for="menu in productStore.products" 
         :key="menu.id"
-        class="cursor-pointer p-5 md:p-6 space-y-2"
+        class="cursor-pointer hover:shadow p-5 md:p-6 space-y-2"
         :class="menu.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
         @click="menu.stock > 0 && cartStore.addToCart(menu)">
         <img :src="menu.img" :alt="menu.title" class="object-cover">
