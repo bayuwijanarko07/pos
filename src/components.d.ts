@@ -14,6 +14,7 @@ declare module 'vue' {
     Card: typeof import('./components/Card.vue')['default']
     Cart: typeof import('./components/Cart.vue')['default']
     FieldImage: typeof import('./components/FieldImage.vue')['default']
+    FieldInput: typeof import('./components/FieldInput.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Sidebar: typeof import('./components/Sidebar.vue')['default']

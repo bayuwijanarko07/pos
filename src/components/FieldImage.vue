@@ -16,8 +16,8 @@
     const user = authData.user
     if (!user) throw new Error('Not authenticated')
 
-    const filename = file.name
-    const filePath = `${user.id}/${filename}`
+    const fileExt = file.name.split('.').pop()
+    const filePath = `${user.id}/avatar.${fileExt}`
 
     const { error: uploadError } = await supabase.storage
         .from('avatars')

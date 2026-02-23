@@ -80,17 +80,18 @@
 
         user.value = {
             ...profileData,
-            email: authUser.email
+            email: authUser.email,
+            created_at: authUser.created_at
         }
 
         loading.value = false
-        }
+    }
 
-        const handleAvatarUpdate = (url: string) => {
-            if (user.value) {
-                user.value.avatar_url = url
-            }
+    const handleAvatarUpdate = (url: string) => {
+        if (user.value) {
+            user.value.avatar_url = url
         }
+    }
 
-        onMounted(fetchProfile)
+    onMounted(fetchProfile)
 </script>
