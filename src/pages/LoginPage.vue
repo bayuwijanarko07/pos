@@ -11,11 +11,10 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400"> Input email dan katasandi untuk login!</p>
                     </div>
                     <form class="space-y-5" @submit.prevent="login">
-                        <label for="email" type="email" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Email
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <input v-model="email" type="email" for="email" name="email" class="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400">
+                        <FieldInput 
+                            label="Email"
+                            required
+                        /> 
                         <label for="password" type="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
                             Katasandi
                             <span class="text-red-500">*</span>
@@ -43,19 +42,6 @@
                         </button>
                         <p v-if="error" class="text-red-500 mt-3">{{ error }}</p>
                     </form>
-                    <!-- <div class="relative py-3 sm:py-5">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-200"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
-                            <span class="p-2 text-gray-400 bg-white sm:px-5 sm:py-2">Atau</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 gap-3 sm:gap-5">
-                        <button class="cursor-pointer inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800">
-                            <Icon icon="mdi:google" />
-                        </button>
-                    </div> -->
                 </div>
             </div>
         </div>
