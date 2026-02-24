@@ -5,7 +5,7 @@
             :for="id"
             class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
         >
-        {{ label }}
+            {{ label }}
             <span v-if="required" class="text-red-500">*</span>
         </label>
 
@@ -58,7 +58,7 @@
     const showPassword = ref(false)
 
     const isPassword = computed(() => {
-        return props.password || props.type === 'current-password'
+        return props.password || props.type === 'password'
     })
 
     const inputType = computed(() => {
@@ -79,7 +79,7 @@
     const normalClass =
         'border border-zinc-200 text-zinc-800 ' +
         'dark:border-zinc-800' +
-        'focus:border-blue-400 focus:ring-1 focus:ring-blue-400'
+        'focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
 
     const inputClass = computed(() => [
         baseClass,
