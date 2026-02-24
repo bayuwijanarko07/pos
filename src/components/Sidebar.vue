@@ -13,7 +13,7 @@
                 :to="menu.path"
                 class="flex justify-center items-center rounded-lg p-5"
                 :class="route.path === menu.path 
-                    ? 'bg-blue-400 text-white' 
+                    ? 'bg-cyan-400 text-white' 
                     : 'text-gray-600'"
                 >
                 <Icon :icon="menu.icon" class="text-xl"/>
@@ -27,7 +27,7 @@
                 :to="menu.path"
                 class="flex justify-center items-center rounded-lg p-5"
                 :class="route.path === menu.path 
-                ? 'bg-blue-400 text-white' 
+                ? 'bg-cyan-400 text-white' 
                 : 'text-gray-600'"
             >
                 <Icon :icon="menu.icon" class="text-xl" />

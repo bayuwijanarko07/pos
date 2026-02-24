@@ -1,6 +1,6 @@
 <template>
     <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-        <div class="text-xl font-semibold text-gray-800">Profil Pengguna</div>
+        <h2 class="text-xl font-semibold text-gray-800">Profil Pengguna</h2>
     </div>
     <Card class="p-5 md:p-6 space-y-2">
         <div class="mb-5 text-lg font-semibold text-gray-800 lg:mb-7">Informasi Pribadi</div>
@@ -36,6 +36,12 @@
                         <p class="mb-2 text-xs leading-normal text-gray-500">Di Buat Pada</p>
                         <p class="text-sm font-medium text-gray-800">{{ user?.created_at || '-' }}</p>
                     </div>
+                    <div>
+                        <p class="mb-2 text-xs leading-normal text-gray-500">Role</p>
+                        <p class="text-sm font-medium text-gray-800">
+                            {{ user?.roles?.join(', ') || '-' }}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -53,12 +59,15 @@
         avatar_url: string | null
         created_at: string
         email?: string | null
+        roles?: string[]
     }
 
     const user = ref<Profile | null>(null)
     const loading = ref(true)
 
     const fetchProfile = async () => {
+        loading.value = true
+
         const { data: authData, error: authError } = await supabase.auth.getUser()
 
         if (authError || !authData.user) {
@@ -68,20 +77,33 @@
 
         const authUser = authData.user
 
-        const { data: profileData, error: profileError } = await supabase
+        const { data : profileData, error: profileError } = await supabase
             .from('profiles')
-            .select('*')
+            .select(`
+                id,
+                full_name,
+                phone,
+                avatar_url,
+                user_roles (
+                roles ( name )
+                )
+            `)
             .eq('id', authUser.id)
             .single()
 
         if (profileError) {
             console.error(profileError)
+            loading.value = false
+            return
         }
+
+        const roles = profileData.user_roles.map((r: any) => r.roles.name)
 
         user.value = {
             ...profileData,
             email: authUser.email,
-            created_at: authUser.created_at
+            created_at: authUser.created_at,
+            roles
         }
 
         loading.value = false
