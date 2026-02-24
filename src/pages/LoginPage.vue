@@ -6,25 +6,28 @@
             </div>
             <div class="items-center justify-center flex flex-col lg:w-1/2 bg-gray-100 p-10">
                 <div class="max-w-md w-full bg-white rounded-xl shadow p-10">
-                    <div class="mt-5 sm:mb-8">
+                    <div class="mt-5 sm:mb-6">
                         <h1 class="mb-2 font-semibold text-gray-800 text-3xl">Login</h1>
                         <p class="text-sm text-gray-500 dark:text-gray-400"> Input email dan katasandi untuk login!</p>
                     </div>
-                    <form class="space-y-5" @submit.prevent="login">
+                    <form class="space-y-5" @submit.prevent="handleLogin">
                         <FieldInput 
+                            v-model="email"
                             label="Email"
+                            type="email"
+                            placeholder="Masukkan email"
                             required
-                        /> 
-                        <label for="password" type="password" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                            Katasandi
-                            <span class="text-red-500">*</span>
-                        </label>
-                        <div class="relative">
-                            <input v-model="password" type="current-password" name="password" class="h-10 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400">
-                            <div class="absolute z-30 text-gray-500 -translate-y-1/2 cursor-pointer right-4 top-1/2 dark:text-gray-400">
-                                <Icon icon="mdi:eye" />
-                            </div>
-                        </div>
+                            :disabled="loading"
+                        />
+                         <FieldInput 
+                            v-model="password"
+                            label="Katasandi"
+                            type="password"
+                            placeholder="Masukkan Password"
+                            required
+                            password
+                            :disabled="loading"
+                        />
                         <div class="flex items-center justify-between">
                             <label for="stayLogin" class="flex items-center text-sm font-normal text-gray-700 cursor-pointer select-none">
                             <div class="relative">
@@ -37,10 +40,17 @@
                                 <a href="">Lupa katasandi?</a>
                             </div>
                         </div>
-                        <button type="submit" :disabled="loading" class="flex items-center justify-center cursor-pointer w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-blue-500 shadow-theme-xs hover:bg-blue-600">
-                            Login
-                        </button>
                         <p v-if="error" class="text-red-500 mt-3">{{ error }}</p>
+                        <button type="submit"
+                                :disabled="!canSubmit"                       
+                                class="flex items-center justify-center cursor-pointer 
+                                w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-blue-500 shadow-theme-xs hover:bg-blue-600">
+                            <span v-if="!loading">Masuk</span>
+                            <span v-else class="flex items-center gap-2">
+                            <Icon icon="mdi:loading" class="w-4 h-4 animate-spin" />
+                                Menunggu....
+                            </span>
+                        </button>
                     </form>
                 </div>
             </div>
@@ -56,16 +66,20 @@
     const error = ref('')
     const loading = ref(false)
 
-    const login = async () => {
-        error.value = ''
+    const canSubmit = computed(() => {
+        return !loading.value
+    })
 
+    const handleLogin = async () => {
+        error.value = ''
+        loading.value = true
+        
         if (!email.value || !password.value) {
             error.value = 'Email dan katasandi wajib diisi'
             return
         }
 
         try {
-            loading.value = true
 
             const { data, error: err } = await supabase.auth.signInWithPassword({
                 email: email.value,
