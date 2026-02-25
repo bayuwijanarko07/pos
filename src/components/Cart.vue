@@ -1,5 +1,5 @@
 <template>
-    <aside class="sticky top-5 w-6/12 xl:w-4/12 lg:w-4/12 rounded bg-white flex flex-col h-full hover:shadow">
+    <aside class="sticky top-5 w-6/12 xl:w-4/12 lg:w-4/12 rounded-xl bg-white flex flex-col h-full hover:shadow">
         <div class="p-4">
             <div class="justify-between mb-5">
                 <p class="text-muted">Order Summary</p>
@@ -9,7 +9,7 @@
             <div
                 v-for="item in cartStore.cart"
                 :key="item.id"
-                class="flex mb-1 p-1 bg-zinc-200 rounded">
+                class="flex mb-1 p-1 bg-zinc-50 rounded">
                 <img :src="item.img" :alt="item.title" class="rounded h-10 w-10 mr-2 object-cover">
                 <div class="flex flex-col justify-center grow">
                     <span class="text-xs">{{ item.title }}</span>

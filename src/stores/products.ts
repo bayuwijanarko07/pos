@@ -6,8 +6,12 @@ export interface Product {
   title: string
   img: string
   price: number
+  sku: string
+  barcode: string
+  is_active: boolean
   category: string
   category_id: string
+  created_at: string
   stock: number
 }
 
@@ -52,7 +56,7 @@ export const useProductStore = defineStore('product', {
         async fetchProducts() {
             const { data, error } = await supabase
                 .from('products')
-                .select(`id,name,sku,price,image_url,is_active,category_id,categories(id,name)`)
+                .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name)`)
                 .eq('is_active', true)
 
             if (error) {
@@ -65,7 +69,11 @@ export const useProductStore = defineStore('product', {
                 title: item.name,
                 img: item.image_url,
                 price: item.price,
+                sku: item.sku,
                 category: item.categories?.name ?? '',
+                barcode: item.barcode,
+                is_active: item.is_active,
+                created_at: item.created_at,
                 category_id: item.category_id,
                 stock: 999
             }))

@@ -1,5 +1,4 @@
 <template>
-  
   <div class="flex gap-4 mb-5">
     <button
       @click="productStore.selectedCategory = 'all'"
@@ -67,7 +66,7 @@
   
   const btnClass = (name: string) => {
     return [
-      'px-3 py-3 rounded',
+      'cursor-pointer px-5 py-5 rounded',
       productStore.selectedCategory === name
         ? 'bg-cyan-500 text-white'
         : 'bg-gray-200'
