@@ -25,9 +25,9 @@
         :class="menu.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
         @click="menu.stock > 0 && cartStore.addToCart(menu)"
       >
-        <img :src="menu.img" :alt="menu.title" class="object-cover">
+        <img :src="menu.image_url" :alt="menu.image_url" class="object-cover">
         <div class="flex justify-between">
-          <h5 class="font-medium text-muted">{{ menu.title }}</h5>
+          <h5 class="font-medium text-muted">{{ menu.name }}</h5>
           <h5 class="font-medium text-muted">
             <span v-if="menu.stock > 0">
               Qty: {{ menu.stock }}

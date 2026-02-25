@@ -3,8 +3,8 @@ import { useProductStore } from '@/stores/products'
 
 export interface CartItem {
   id: number
-  title: string
-  img: string
+  name: string
+  image_url: string
   price: number
   category: string
   qty: number
