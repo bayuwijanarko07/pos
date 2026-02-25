@@ -1,12 +1,31 @@
 <template>
+  
+  <div class="flex gap-4 mb-5">
+    <button
+      @click="productStore.selectedCategory = 'all'"
+      :class="btnClass('all')">
+      Semua
+    </button>
+
+    <button
+      v-for="cat in productStore.categories"
+      :key="cat.id"
+      @click="productStore.selectedCategory = cat.id"
+      :class="btnClass(cat.id)">
+      {{ cat.name }}
+    </button>
+  </div>
+
   <div class="flex sm:flex-row gap-4">
     <div class="grid sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1">
+      
       <Card 
-        v-for="menu in productStore.products" 
+        v-for="menu in productStore.filteredProducts" 
         :key="menu.id"
         class="cursor-pointer hover:shadow p-5 md:p-6 space-y-2"
         :class="menu.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
-        @click="menu.stock > 0 && cartStore.addToCart(menu)">
+        @click="menu.stock > 0 && cartStore.addToCart(menu)"
+      >
         <img :src="menu.img" :alt="menu.title" class="object-cover">
         <div class="flex justify-between">
           <h5 class="font-medium text-muted">{{ menu.title }}</h5>
@@ -41,52 +60,17 @@
   const cartStore = useCartStore()
   const productStore = useProductStore()
 
-  const imageModules = import.meta.glob('@/assets/images/products/*', {
-    eager: true,
-    import: 'default'
-  }) as Record<string, string>
-
-  const getImage = (name: string): string => {
-    const path = `/src/assets/images/products/${name}`
-    return imageModules[path] ?? ''
-  }
-
-  onMounted(() => {
-    if (productStore.products.length === 0) {
-      productStore.setProducts([
-        {
-          id: 1,
-          title: 'Iced Coffe Latte',
-          img: getImage('coffe-latte.png'),
-          price: 18000,
-          category: 'drinks',
-          stock: 15,
-        },
-        {
-          id: 2,
-          title: 'Iced Chocolate',
-          img: getImage('ice-chocolate.png'),
-          price: 12000,
-          category: 'drinks',
-          stock: 8,
-        },
-        {
-          id: 3,
-          title: 'Iced Tea',
-          img: getImage('ice-tea.png'),
-          price: 5000,
-          category: 'drinks',
-          stock: 6,
-        },
-        {
-          id: 4,
-          title: 'Iced Matcha Latte',
-          img: getImage('matcha-latte.png'),
-          price: 16000,
-          category: 'drinks',
-          stock: 8,
-        },
-      ])
-    }
+  onMounted(async () => {
+    await productStore.fetchCategories()
+    await productStore.fetchProducts()
   })
+  
+  const btnClass = (name: string) => {
+    return [
+      'px-3 py-3 rounded',
+      productStore.selectedCategory === name
+        ? 'bg-cyan-500 text-white'
+        : 'bg-gray-200'
+    ]
+  }
 </script>

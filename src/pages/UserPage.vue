@@ -79,15 +79,7 @@
 
         const { data : profileData, error: profileError } = await supabase
             .from('profiles')
-            .select(`
-                id,
-                full_name,
-                phone,
-                avatar_url,
-                user_roles (
-                roles ( name )
-                )
-            `)
+            .select(`id,full_name,phone,avatar_url,user_roles (roles ( name ))`)
             .eq('id', authUser.id)
             .single()
 
