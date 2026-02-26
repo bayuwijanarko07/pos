@@ -50,5 +50,5 @@
     }
   })
 
-  const products = computed(() => productStore.allProducts)
+  const products = computed(() => productStore.products)
 </script>

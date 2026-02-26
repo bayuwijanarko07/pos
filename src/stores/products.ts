@@ -15,80 +15,123 @@ export interface Product {
   stock: number
 }
 
+interface Category {
+  id: string
+  name: string
+}
+
+interface ProductRow {
+  id: number
+  name: string
+  sku: string
+  price: number
+  image_url: string
+  barcode: string
+  is_active: boolean
+  category_id: string
+  created_at: string
+  categories: { id: string; name: string }[] | null
+  inventories: { stock: number }[] | null
+}
+
 export const useProductStore = defineStore('product', {
     state: () => ({
         products: [] as Product[],
-        categories: [] as { id: string; name: string }[],
+        productMap: {} as Record<number, Product>,
+        categories: [] as Category[],
         selectedCategory: 'all' as string,
+        isLoading: false,
+        isFetched: false,
+        error: null as string | null,
     }),
 
     getters: {
+        products: (state) => Object.values(state.productMap),
+        allCategories: (state) => state.categories,
+
+        getProductById: (state) => (id: number) => {
+            return state.productMap[id]
+        },
+
         getStock: (state) => (id: number) => {
             const product = state.products.find(p => p.id === id)
             return product?.stock ?? 0
         },
 
-        allProducts (state) {
-            return state.products
-        },
-
-        allCategories (state) {
-            return state.categories
-        },
-
         filteredProducts(state) {
-            if (!state.selectedCategory ||state.selectedCategory === 'all') {
-                return state.products
+            const list = Object.values(state.productMap)
+
+            if (!state.selectedCategory || state.selectedCategory === 'all') {
+                return list
             }
 
-            return state.products.filter(
-                p => p.category_id === state.selectedCategory
+            return list.filter(
+                (p) => p.category_id === state.selectedCategory
             )
         },
-
-        getProductById: (state) => {
-            return (id: number) => state.products.find(p => p.id === id)
-        }
     },
 
     actions: {
-        async fetchCategories() {
-            const { data, error } = await supabase
-                .from('categories')
-                .select('id, name')
-
-            if (error) {
-                console.error(error)
-                return
+        mapRow(row: ProductRow): Product {
+            return {
+                id: row.id,
+                name: row.name,
+                image_url: row.image_url,
+                price: row.price,
+                sku: row.sku,
+                barcode: row.barcode,
+                is_active: row.is_active,
+                created_at: row.created_at,
+                category_id: row.category_id,
+                category: row.categories?.[0]?.name ?? '',
+                stock: row.inventories?.[0]?.stock ?? 0,
             }
-
-            this.categories = data ?? []
         },
 
-        async fetchProducts() {
+        async fetchProducts(force = false) {
+            if (this.isFetched && !force) return
+
+            this.isLoading = true
+            this.error = null
+
             const { data, error } = await supabase
                 .from('products')
                 .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name),inventories(stock)`)
                 .eq('is_active', true)
 
             if (error) {
+                this.error = error.message
+                console.error(error)
+                this.isLoading = false
+                return
+            }
+
+            const map: Record<number, Product> = {}
+
+            for (const row of data as ProductRow[]) {
+                const product = this.mapRow(row)
+                map[product.id] = product
+            }
+
+            this.productMap = map
+            this.isFetched = true
+            this.isLoading = false
+        },
+
+        async fetchCategories(force = false) {
+            if (this.categories.length && !force) return
+
+            const { data, error } = await supabase
+                .from('categories')
+                .select('id, name')
+
+            if (error) {
+                this.error = error.message
                 console.error(error)
                 return
             }
 
-            this.products = data.map((item: any) => ({
-                id: item.id,
-                name: item.name,
-                image_url: item.image_url,
-                price: item.price,
-                sku: item.sku,
-                category: item.categories?.name ?? '',
-                barcode: item.barcode,
-                is_active: item.is_active,
-                created_at: item.created_at,
-                category_id: item.category_id,
-                stock: item.inventories?.[0]?.stock ?? 0
-            }))
+            this.categories = data ?? []
         },
 
         async createProduct(payload: {
@@ -114,7 +157,8 @@ export const useProductStore = defineStore('product', {
                 .single()
 
             if (error) {
-                console.error('Create product error:', error)
+                this.error = error.message
+                console.error(error)
                 throw error
             }
 
@@ -133,6 +177,7 @@ export const useProductStore = defineStore('product', {
             }
 
             this.products.unshift(newProduct)
+            this.productMap[newProduct.id] = newProduct
 
             return newProduct
         },
@@ -140,50 +185,50 @@ export const useProductStore = defineStore('product', {
         async updateProduct(id: number, payload: Partial<Product>) {
             const { data, error } = await supabase
                 .from('products')
-                .update({
-                    name: payload.name,
-                    sku: payload.sku,
-                    barcode: payload.barcode,
-                    price: payload.price,
-                    image_url: payload.image_url,
-                    category_id: payload.category_id,
-                })
+                .update(payload)
                 .eq('id', id)
                 .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name)`)
                 .single()
 
             if (error) {
-                console.error('Update product error:', error)
+                this.error = error.message
+                console.error(error)
                 throw error
             }
 
-            const index = this.products.findIndex(p => p.id === id)
-            if (index !== -1) {
-                this.products[index] = {
-                    ...this.products[index],
-                    ...data,
-                    category: data.categories?.[0]?.name ?? '',
-                    stock: 0
-                }
-            }
+            const existing = this.productMap[id]
+            if (!existing) return data
+
+            const updated = this.mapRow({
+                ...data,
+                inventories: [{ stock: existing.stock }],
+            })
+
+            this.productMap[id] = updated
+            const index = this.products.findIndex((p) => p.id === id)
+            if (index !== -1) this.products[index] = updated
 
             return data
         },
 
-        decreaseStock(id: number, qty: number = 1) {
-            const product = this.products.find(p => p.id === id)
-            if (!product) return false
-            if (product.stock < qty) return false
+        decreaseStock(id: number, qty = 1) {
+            const product = this.productMap[id]
+            if (!product || product.stock < qty) return false
 
             product.stock -= qty
             return true
         },
         
-        increaseStock(id: number, qty: number = 1) {
-            const product = this.products.find(p => p.id === id)
+        increaseStock(id: number, qty = 1) {
+            const product = this.productMap[id]
             if (!product) return
             product.stock += qty
-        }
+        },
+
+        clearCache() {
+            this.productMap = {}
+            this.isFetched = false
+        },
     },
 
     persist: true,

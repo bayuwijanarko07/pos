@@ -76,7 +76,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-800">
                         <tr 
-                            v-for="(prod, index) in productStore.allProducts" 
+                            v-for="(prod, index) in productStore.products" 
                             :key="prod.id"
                         >
                             <td class="px-6 py-3.5">
