@@ -1,38 +1,7 @@
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
-
-export interface Product {
-  id: number
-  name: string
-  image_url: string
-  price: number
-  sku: string
-  barcode: string
-  is_active: boolean
-  category: string
-  category_id: string
-  created_at: string
-  stock: number
-}
-
-interface Category {
-  id: string
-  name: string
-}
-
-interface ProductRow {
-  id: number
-  name: string
-  sku: string
-  price: number
-  image_url: string
-  barcode: string
-  is_active: boolean
-  category_id: string
-  created_at: string
-  categories: { id: string; name: string }[] | null
-  inventories: { stock: number }[] | null
-}
+import type { Product, Category, ProductRow } from '@/types/product'
+import { uploadProductImage } from '@/lib/storage'
 
 export const useProductStore = defineStore('product', {
     state: () => ({
@@ -135,51 +104,59 @@ export const useProductStore = defineStore('product', {
         },
 
         async createProduct(payload: {
-                name: string
-                sku: string
-                barcode: string
-                price: number
-                image_url?: string
-                category_id: string
-            }) {
-            const { data, error } = await supabase
+            name: string
+            sku: string
+            barcode: string
+            price: number
+            image_url?: string
+            category_id: string
+            file?: File
+        }) {
+            this.error = null
+
+            try {
+                let imageUrl = payload.image_url ?? ''
+
+                if (payload.file) {
+                    const upload = await uploadProductImage(payload.file)
+                    imageUrl = upload.publicUrl
+                }
+
+                const { data, error } = await supabase
                 .from('products')
                 .insert({
                     name: payload.name,
                     sku: payload.sku,
                     barcode: payload.barcode,
                     price: payload.price,
-                    image_url: payload.image_url ?? '',
+                    image_url: imageUrl,
                     category_id: payload.category_id,
                     is_active: true
                 })
-                .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories:category_id (id,name)`)
+                .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name)`)
                 .single()
 
-            if (error) {
-                this.error = error.message
-                console.error(error)
-                throw error
+                if (error) {
+                    this.error = error.message
+                    console.error(error)
+                    throw error
+                }
+
+                const row = {
+                    ...data,
+                    categories: data.categories ?? [],
+                    inventories: [{ stock: 0 }]
+                } as ProductRow
+
+                const newProduct = this.mapRow(row)
+
+                this.productMap[newProduct.id] = newProduct
+
+                return newProduct
+            } catch (err: any) {
+                this.error = err.message
+                throw err
             }
-
-            const newProduct: Product = {
-                id: data.id,
-                name: data.name,
-                image_url: data.image_url,
-                price: data.price,
-                sku: data.sku,
-                barcode: data.barcode,
-                is_active: data.is_active,
-                created_at: data.created_at,
-                category: data.categories?.[0]?.name ?? '',
-                category_id: data.category_id,
-                stock: 0
-            }
-
-            this.products.unshift(newProduct)
-            this.productMap[newProduct.id] = newProduct
-
-            return newProduct
         },
 
         async updateProduct(id: number, payload: Partial<Product>) {

@@ -9,6 +9,44 @@
                     v-model="form.name"
                     required
                 />
+                <FieldInput 
+                    label="SKU"
+                    type="text"
+                    placeholder="Masukkan SKU"
+                    v-model="form.sku"
+                    required
+                />
+                <FieldInput 
+                    label="Barcode"
+                    type="text"
+                    placeholder="Masukkan Barcode"
+                    v-model="form.barcode"
+                    required
+                />
+               <div class="flex flex-col gap-2">
+                    <label class="text-sm font-medium text-gray-600">
+                        Gambar Produk
+                    </label>
+
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        @change="onFileChange"
+                        class="block w-full text-sm text-gray-700
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-lg file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-cyan-50 file:text-cyan-600
+                        hover:file:bg-cyan-100 cursor-pointer"
+                    />
+
+                    <img 
+                        v-if="previewUrl" 
+                        :src="previewUrl" 
+                        class="w-32 h-32 object-cover rounded-lg border"
+                        alt="Preview"
+                    />
+                </div>
                 <select v-model="form.category_id" required>
                     <option value="" disabled>Pilih Kategori</option>
                     <option v-for="cat in categories" :key="cat.id" :value="cat.id">
@@ -52,9 +90,32 @@
         sku: '',
         barcode: '',
         price: 0,
-        category_id: '1', 
+        category_id: '', 
         image_url: '',
     })
+
+    const file = ref<File | null>(null)
+    const previewUrl = ref<string>('')
+
+    const onFileChange = (e: Event) => {
+        const target = e.target as HTMLInputElement
+        const selected = target.files?.[0] ?? null
+
+        if (!selected) return
+
+        if (!selected.type.startsWith('image/')) {
+            alert('File harus berupa gambar')
+            return
+        }
+
+        if (selected.size > 2 * 1024 * 1024) {
+            alert('Ukuran gambar maksimal 2MB')
+            return
+        }
+
+        file.value = selected
+        previewUrl.value = URL.createObjectURL(selected)
+    }
 
     const isEdit = computed(() => props.mode === 'edit')
 
@@ -72,24 +133,35 @@
                 form.name = prod.name
                 form.price = prod.price
                 form.category_id = prod.category_id
+                form.image_url = prod.image_url
+
+                previewUrl.value = prod.image_url || ''
+                file.value = null
             } else {
                 form.name = ''
                 form.price = 0
                 form.category_id = ''
+                form.image_url = ''
+                previewUrl.value = ''
+                file.value = null
             }
         },
         { immediate: true }
     )
 
     const submit = async () => {
-        if (isEdit.value && props.selectedId) {
-            await productStore.updateProduct(props.selectedId, form)
+         if (isEdit.value && props.selectedId) {
+            await productStore.updateProduct(props.selectedId, {
+                ...form,
+                // file: file.value ?? undefined
+            })
         } else {
-            await productStore.createProduct(form)
+            await productStore.createProduct({
+                ...form,
+                file: file.value ?? undefined
+            })
         }
 
-        await productStore.fetchProducts()
         back()
     }
-
 </script>

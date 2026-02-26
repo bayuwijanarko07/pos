@@ -49,7 +49,6 @@
 </template>
 <script setup lang="ts">
     import { supabase } from '@/lib/supabase'
-
     import FieldImage from '@/components/FieldImage.vue'
 
     type Profile = {
