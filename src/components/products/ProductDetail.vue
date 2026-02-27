@@ -81,7 +81,7 @@
     import { useProductUIStore } from '@/stores/product-ui'
 
     interface Product {
-        id: number
+        id: string
         name: string
         category: string
         sku: string
@@ -93,7 +93,7 @@
     }
 
     const props = defineProps<{
-        selectedId: number | null
+        selectedId: string | null
         products: Product[]
     }>()
 

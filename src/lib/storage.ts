@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 
 const BUCKET = 'product-images'
 
-export async function uploadProductImage(file: File) {
+export async function uploadProductImage(  productId: string, file: File) {
   if (!file) throw new Error('File tidak ditemukan')
 
   const allowedTypes = ['image/png', 'image/jpeg', 'image/webp']
@@ -10,23 +10,20 @@ export async function uploadProductImage(file: File) {
     throw new Error('Format gambar tidak didukung')
   }
 
-  const fileExt = file.name.split('.').pop()
-  const fileName = `${Date.now()}-${Math.random()
-    .toString(36)
-    .substring(2)}.${fileExt}`
+  const fileExt = file.name.split('.').pop() || 'webp'
 
-  const filePath = `products/${fileName}` 
+  const filePath = `${productId}/main.${fileExt}`
 
-  const { error } = await supabase.storage
+  const { error: uploadError } = await supabase.storage
     .from(BUCKET)
     .upload(filePath, file, {
       cacheControl: '3600',
-      upsert: false,
+      upsert: true,
     })
 
-  if (error) {
-    console.error('Upload error:', error)
-    throw error
+  if (uploadError) {
+    console.error('Upload error:', uploadError)
+    throw uploadError
   }
 
   const { data } = supabase.storage

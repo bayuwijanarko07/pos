@@ -54,7 +54,7 @@
                                 Menunggu....
                             </span>
                         </button>
-                        <p v-if="error" class="text-red-500 mt-3">{{ error }}</p>
+                        <p v-if="error" class="text-red-500 mt-3 text-center">{{ error }}</p>
                     </form>
                 </div>
             </div>
@@ -82,9 +82,6 @@
         error.value = ''
         loading.value = true
 
-        console.log('Email:', email.value)
-        console.log('Password:', password.value)
-
         try {
             const { data, error: err } = await supabase.auth.signInWithPassword({
                 email: email.value,
@@ -92,7 +89,6 @@
             })
 
         if (err) {
-            await new Promise(r => setTimeout(r, 700))
             error.value = 'Email atau katasandi salah'
             return
         }

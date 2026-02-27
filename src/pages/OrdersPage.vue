@@ -1,16 +1,17 @@
 <template>
   <div class="flex gap-4 mb-5">
     <button
-      @click="productStore.selectedCategory = 'all'"
+      @click="setCategory('all')"
       :class="btnClass('all')">
       Semua
     </button>
 
     <button
-      v-for="cat in productStore.categories"
+      v-for="cat in categories"
       :key="cat.id"
-      @click="productStore.selectedCategory = cat.id"
-      :class="btnClass(cat.id)">
+      @click="setCategory(cat.id)"
+      :class="btnClass(cat.id)"
+    >
       {{ cat.name }}
     </button>
   </div>
@@ -19,15 +20,23 @@
     <div class="grid sm:grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1">
       
       <Card 
-        v-for="menu in productStore.filteredProducts" 
+        v-for="menu in products" 
         :key="menu.id"
         class="cursor-pointer hover:shadow p-5 md:p-6 space-y-2"
         :class="menu.stock === 0 ? 'opacity-50 cursor-not-allowed' : ''"
         @click="menu.stock > 0 && cartStore.addToCart(menu)"
       >
-        <img :src="menu.image_url" :alt="menu.image_url" class="object-cover">
+        <img
+          :src="menu.image_url || '/placeholder.png'"
+          :alt="menu.name"
+          class="object-cover w-full h-40 rounded"
+        />
+
         <div class="flex justify-between">
-          <h5 class="font-medium text-muted">{{ menu.name }}</h5>
+          <h5 class="font-medium text-muted">
+            {{ menu.name }}
+          </h5>
+
           <h5 class="font-medium text-muted">
             <span v-if="menu.stock > 0">
               Qty: {{ menu.stock }}
@@ -36,13 +45,14 @@
               Out of Stock
             </span>
           </h5>
+
         </div>
         <div class="flex justify-between">
             <span class="inline-flex items-center rounded-md bg-gray-400/10 px-2 py-1 text-xs font-medium text-gray-400 inset-ring inset-ring-gray-400/20">
-              {{ menu.category }}
+              {{ menu.category || 'Uncategorized' }}
             </span>
             <p class="text-sm text-muted">
-              {{ menu.price }}
+              {{ formatPrice(menu.price) }}
             </p>
         </div>
       </Card>
@@ -59,17 +69,45 @@
   const cartStore = useCartStore()
   const productStore = useProductStore()
 
-  onMounted(async () => {
-    await productStore.fetchCategories()
-    await productStore.fetchProducts()
-  })
+  const categories = computed(() => productStore.categories ?? [])
+  const products = computed(() => productStore.filteredProducts)
   
-  const btnClass = (name: string) => {
+  const setCategory = (id: string) => {
+    productStore.selectedCategory = id
+  }
+
+  watch(
+    () => productStore.categories,
+    (cats) => {
+      if (!cats?.length) return
+
+      const exists = cats.some(c => c.id === productStore.selectedCategory)
+      if (!exists && productStore.selectedCategory !== 'all') {
+        productStore.selectedCategory = 'all'
+      }
+    },
+    { immediate: true }
+  )
+
+  onMounted(async () => {
+    await Promise.all([
+      productStore.fetchCategories(),
+      productStore.fetchProducts()
+    ])
+  })
+
+  const btnClass = (id: string) => {
+    const active = productStore.selectedCategory === id
+
     return [
-      'cursor-pointer px-5 py-5 rounded',
-      productStore.selectedCategory === name
-        ? 'bg-cyan-500 text-white'
-        : 'bg-gray-200'
+      'cursor-pointer px-4 py-2 rounded-lg text-sm font-medium transition',
+      active
+        ? 'bg-cyan-500 text-white shadow'
+        : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
     ]
+  }
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('id-ID').format(price)
   }
 </script>

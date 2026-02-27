@@ -21,14 +21,13 @@
                     type="text"
                     placeholder="Masukkan SKU"
                     v-model="form.sku"
-                    required
+
                 />
                 <FieldInput 
                     label="Barcode"
                     type="text"
                     placeholder="Masukkan Barcode"
                     v-model="form.barcode"
-                    required
                 />
                <div class="flex flex-col gap-2">
                     <label class="text-sm font-medium text-gray-600">
@@ -86,7 +85,7 @@
 
     const props = defineProps<{
         mode: 'create' | 'edit'
-        selectedId: number | null
+        selectedId: string | null
     }>()
 
     const productStore = useProductStore()
@@ -139,14 +138,17 @@
             if (prod && isEdit.value) {
                 form.name = prod.name
                 form.price = prod.price
+                form.barcode = prod.barcode
+                form.sku = prod.sku
                 form.category_id = prod.category_id
                 form.image_url = prod.image_url
-
                 previewUrl.value = prod.image_url || ''
                 file.value = null
             } else {
                 form.name = ''
                 form.price = 0
+                form.barcode = ''
+                form.sku = ''
                 form.category_id = ''
                 form.image_url = ''
                 previewUrl.value = ''
@@ -160,7 +162,7 @@
          if (isEdit.value && props.selectedId) {
             await productStore.updateProduct(props.selectedId, {
                 ...form,
-                // file: file.value ?? undefined
+                file: file.value ?? undefined
             })
         } else {
             await productStore.createProduct({

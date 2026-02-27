@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useProductStore } from '@/stores/products'
 
 export interface CartItem {
-  id: number
+  id: string
   name: string
   image_url: string
   price: number
@@ -44,7 +44,7 @@ export const useCartStore = defineStore('cart', {
       productStore.decreaseStock(product.id, 1)
     },
 
-    updateQty(id: number, newQty: number){
+    updateQty(id: string, newQty: number){
         const productStore = useProductStore()
         const item = this.cart.find(i => i.id === id)
         const stock = productStore.getStock(id)
@@ -72,7 +72,7 @@ export const useCartStore = defineStore('cart', {
         item.qty = newQty
     },
 
-    increaseQty(id: number) {
+    increaseQty(id: string) {
         const productStore = useProductStore()
         const stock = productStore.getStock(id)
 
@@ -85,7 +85,7 @@ export const useCartStore = defineStore('cart', {
         productStore.decreaseStock(id, 1)
     },
 
-    decreaseQty(id: number) {
+    decreaseQty(id: string) {
         const productStore = useProductStore()
         const item = this.cart.find(i => i.id === id)
         if (!item) return
@@ -98,7 +98,7 @@ export const useCartStore = defineStore('cart', {
         }
     },
 
-    removeFromCart(id: number) {
+    removeFromCart(id: string) {
         const productStore = useProductStore()
         const item = this.cart.find(i => i.id === id)
         if (!item) return
@@ -119,5 +119,5 @@ export const useCartStore = defineStore('cart', {
     }
   },
 
-  persist: true
+  // persist: true
 })

@@ -1,6 +1,6 @@
 
 export interface Product {
-  id: number
+  id: string
   name: string
   image_url: string
   price: number
@@ -19,7 +19,7 @@ export interface Category {
 }
 
 export interface ProductRow {
-  id: number
+  id: string 
   name: string
   sku: string
   price: number
