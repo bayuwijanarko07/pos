@@ -5,12 +5,44 @@
     </h2>
   </div>
 
-  <component
-    :is="currentComponent"
-    :mode="uiStore.mode"
-    :selected-id="uiStore.selectedId"
-    :products="products"
-  />
+  <div class="mb-6">
+    <nav class="flex gap-2">
+      <button
+        v-for="tab in tabs"
+        :key="tab.key"
+        @click="activeTab = tab.key"
+        class="cursor-pointer px-4 py-4 rounded-lg text-sm font-medium transition"
+        :class="activeTab === tab.key
+          ? 'bg-cyan-500 text-white shadow'
+          : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
+      >
+        {{ tab.label }}
+      </button>
+    </nav>
+
+    <div class="mt-6">
+      <div v-if="activeTab === 'products'">
+        <component
+          :is="currentComponent"
+          :mode="uiStore.mode"
+          :selected-id="uiStore.selectedId"
+          :products="products"
+        />
+      </div>
+
+      <div v-else-if="activeTab === 'category'">
+        <p class="text-gray-600">Halaman Kategori</p>
+      </div>
+
+      <div v-else-if="activeTab === 'inventory'">
+        <p class="text-gray-600">Halaman Inventory</p>
+      </div>
+
+      <div v-else-if="activeTab === 'location'">
+        <p class="text-gray-600">Halaman Location</p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -30,7 +62,22 @@
     productStore.fetchProducts()
   })
 
+  interface TabItem {
+    key: TabKey
+    label: string
+  }
+
   type Mode = 'list' | 'create' | 'edit' | 'detail'
+  type TabKey = 'category' | 'inventory' | 'location' | 'products'
+
+  const activeTab = ref<TabKey>('category')
+
+  const tabs: TabItem[] = [
+    { key: 'products', label: 'Produk' },
+    { key: 'category', label: 'Kategori' },
+    { key: 'inventory', label: 'Inventory' },
+    { key: 'location', label: 'Location' },
+  ]
 
   const componentMap: Record<Mode, Component> = {
     list: ProductTable,

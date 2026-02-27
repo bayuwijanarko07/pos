@@ -100,7 +100,7 @@
     const active = productStore.selectedCategory === id
 
     return [
-      'cursor-pointer px-4 py-2 rounded-lg text-sm font-medium transition',
+      'cursor-pointer px-4 py-4 rounded-lg text-sm font-medium transition',
       active
         ? 'bg-cyan-500 text-white shadow'
         : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
