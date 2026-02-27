@@ -17,17 +17,22 @@
                 <Icon :icon="prefixIcon" />
             </span>
 
-            <component
-                :is="isTextarea ? 'textarea' : 'input'"
+            <input
                 :id="id"
-                v-model="model"
+                :name="name"
                 :type="inputType"
-                :rows="rows"
+                :value="model ?? ''"
+                @input="onInput"
+                @change="onInput"
                 :placeholder="placeholder"
                 :disabled="disabled"
+                :required="required"
                 :autocomplete="autocomplete"
                 :class="computedClass"
                 :aria-invalid="!!error"
+                autocapitalize="off"
+                autocorrect="off"
+                spellcheck="false"
             />
 
             <button
@@ -47,11 +52,11 @@
             </span>
 
             <p v-if="hint && !error" class="text-xs text-gray-500">
-            {{ hint }}
+                {{ hint }}
             </p>
 
             <p v-if="error" class="text-xs text-red-500">
-            {{ error }}
+                {{ error }}
             </p>
         </div>
     </div>
@@ -61,15 +66,13 @@
     interface Props {
         label?: string
         type?: string
+        name?: string
         placeholder?: string
         disabled?: boolean
         required?: boolean
         id?: string
         className?: string
         autocomplete?: string
-        password?: boolean
-        textarea?: boolean
-        rows?: number
         error?: string
         hint?: string
         prefixIcon?: string
@@ -81,20 +84,13 @@
         placeholder: '',
         disabled: false,
         required: false,
-        password: false,
-        textarea: false,
-        rows: 3,
     })
 
     const model = defineModel<string | number | null>()
 
     const showPassword = ref(false)
 
-    const isTextarea = computed(() => props.textarea)
-
-    const isPassword = computed(() => {
-        return props.password || props.type === 'password'
-    })
+    const isPassword = computed(() => props.type === 'password')
 
     const inputType = computed(() => {
         if (isPassword.value) {
@@ -105,6 +101,11 @@
 
     const togglePassword = () => {
         showPassword.value = !showPassword.value
+    }
+
+    const onInput = (e: Event) => {
+        const target = e.target as HTMLInputElement
+        model.value = target.value
     }
 
     const baseClass =
@@ -124,7 +125,7 @@
     if (props.error) {
         return 'border border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
     }
-    return 'border border-zinc-200 text-zinc-800 ' +
+    return  'border border-zinc-200 text-zinc-800 ' +
             'focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
     })
 

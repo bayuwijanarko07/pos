@@ -11,23 +11,27 @@
                         <p class="text-sm text-gray-500 dark:text-gray-400"> Input email dan katasandi untuk login!</p>
                     </div>
                     <form class="space-y-5" @submit.prevent="handleLogin">
-                        <FieldInput 
+                        <FieldInput
+                            id="email"
+                            name="email"
                             v-model="email"
                             label="Email"
                             type="email"
-                            autocomplete="email"
+                            autocomplete="username"
                             placeholder="Masukkan email"
                             required
                             :disabled="loading"
                         />
-                         <FieldInput 
+
+                        <FieldInput
+                            id="password"
+                            name="password"
                             v-model="password"
                             label="Katasandi"
                             type="password"
                             autocomplete="current-password"
                             placeholder="Masukkan Password"
                             required
-                            password
                             :disabled="loading"
                         />
                         <div class="flex items-center justify-center">
@@ -36,9 +40,14 @@
                             </div>
                         </div>
                         <button type="submit"
-                                :disabled="!canSubmit"                       
-                                class="flex items-center justify-center cursor-pointer 
-                                w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-cyan-500 shadow-theme-xs hover:bg-cyan-600">
+                                :disabled="!canSubmit"
+                                :class="[
+                                'flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white rounded-lg transition',
+                                canSubmit
+                                    ? 'bg-cyan-500 hover:bg-cyan-600 cursor-pointer'
+                                    : 'bg-gray-400 cursor-not-allowed'
+                                ]"
+                        >
                             <span v-if="!loading">Masuk</span>
                             <span v-else class="flex items-center gap-2">
                             <Icon icon="mdi:loading" class="w-4 h-4 animate-spin" />
@@ -64,37 +73,41 @@
     const loading = ref(false)
 
     const canSubmit = computed(() => {
-        return !loading.value
+        return (!loading.value)
     })
 
     const handleLogin = async () => {
+        if (!canSubmit.value) return
+
         error.value = ''
-        
-        if (!email.value || !password.value) {
-            error.value = 'Email dan katasandi wajib diisi'
+        loading.value = true
+
+        console.log('Email:', email.value)
+        console.log('Password:', password.value)
+
+        try {
+            const { data, error: err } = await supabase.auth.signInWithPassword({
+                email: email.value,
+                password: password.value
+            })
+
+        if (err) {
+            await new Promise(r => setTimeout(r, 700))
+            error.value = 'Email atau katasandi salah'
             return
         }
 
-            try {
-                loading.value = true
-                const { data, error: err } = await supabase.auth.signInWithPassword({
-                    email: email.value,
-                    password: password.value
-                })
-
-            if (err) {
-                error.value = err.message
-                return
-            }
-
-            if (data.session) {
-                await router.push('/')
-            }
-
-            } catch (e: any) {
-                error.value = 'Terjadi kesalahan saat login'
-            } finally {
-                loading.value = false
-            }
+        if (!data.session) {
+            error.value = 'Gagal membuat sesi login'
+            return
         }
+
+        await router.replace('/')
+
+        } catch (e: any) {
+            error.value = 'Terjadi kesalahan saat login'
+        } finally {
+            loading.value = false
+        }
+    }
 </script>
