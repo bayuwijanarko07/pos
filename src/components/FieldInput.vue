@@ -109,8 +109,16 @@
     }
 
     const baseClass =
-        'w-full rounded-lg bg-transparent py-2 text-sm ' +
-        'placeholder:text-gray-400 focus:outline-none transition disabled:opacity-50'
+  'w-full rounded-lg bg-transparent py-2 text-sm appearance-none ' +
+  'outline-none focus:outline-none transition disabled:opacity-50'
+
+    const stateClass = computed(() => {
+        if (props.error) {
+            return 'border border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20'
+        }
+        return 'border border-zinc-200 text-zinc-800 ' +
+                'focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20'
+    })
 
     const paddingClass = computed(() => {
         if (props.prefixIcon && (props.suffixIcon || isPassword.value)) {
@@ -119,14 +127,6 @@
         if (props.prefixIcon) return 'pl-10 pr-3'
         if (props.suffixIcon || isPassword.value) return 'pl-3 pr-10'
         return 'pl-3 pr-3'
-    })
-
-    const stateClass = computed(() => {
-    if (props.error) {
-        return 'border border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500'
-    }
-    return  'border border-zinc-200 text-zinc-800 ' +
-            'focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
     })
 
     const computedClass = computed(() => [

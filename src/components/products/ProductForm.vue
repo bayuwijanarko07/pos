@@ -1,39 +1,25 @@
 <template>
-    <Card class="pt-2">
-        <div class="w-full bg-white rounded-xl shadow p-10">
-            <form class="space-y-5" @submit.prevent="submit">
-                <FieldInput 
-                    label="Nama"
-                    type="text"
-                    placeholder="Masukkan nama"
-                    v-model="form.name"
-                    required
-                />
-                <FieldInput 
-                    label="Harga"
-                    type="number"
-                    placeholder="Masukkan harga"
-                    v-model="form.price"
-                    required
-                />
-                <FieldInput 
-                    label="SKU"
-                    type="text"
-                    placeholder="Masukkan SKU"
-                    v-model="form.sku"
-
-                />
-                <FieldInput 
-                    label="Barcode"
-                    type="text"
-                    placeholder="Masukkan Barcode"
-                    v-model="form.barcode"
-                />
-               <div class="flex flex-col gap-2">
+    <Card class="p-5">
+        <button
+            type="button"
+            @click="back"
+            class="inline-flex cursor-pointer 
+            px-4 py-3 text-sm font-medium text-gray-800 bg-gray-200 rounded-lg shadow hover:bg-gray-300 transition"
+        >
+            Kembali
+        </button>
+        <div class="relative flex lg:flex-row flex-col bg-white rounded-xl p-10">
+            <div class="lg:w-1/2 lg:grid items-center justify-center">
+                <div class="flex flex-col gap-2">
                     <label class="text-sm font-medium text-gray-600">
                         Gambar Produk
                     </label>
-
+                    <img 
+                        v-if="previewUrl" 
+                        :src="previewUrl" 
+                        class="w-100 h-100 object-cover rounded-lg border border-gray-50"
+                        alt="Preview"
+                    />
                     <input 
                         type="file" 
                         accept="image/*" 
@@ -45,37 +31,60 @@
                         file:bg-cyan-50 file:text-cyan-600
                         hover:file:bg-cyan-100 cursor-pointer"
                     />
-
-                    <img 
-                        v-if="previewUrl" 
-                        :src="previewUrl" 
-                        class="w-32 h-32 object-cover rounded-lg border"
-                        alt="Preview"
+                </div>
+            </div>
+            <div class="lg:w-1/2 lg:grid">
+                <form class="space-y-5" @submit.prevent="submit">
+                    <FieldInput 
+                        label="Nama"
+                        type="text"
+                        placeholder="Masukkan nama"
+                        v-model="form.name"
+                        required
                     />
-                </div>
-                <select v-model="form.category_id" required>
-                    <option value="" disabled>Pilih Kategori</option>
-                    <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                        {{ cat.name }}
-                    </option>
-                </select>
-                <div class="flex justify-between">
-                    <button
-                        type="button"
-                        @click="back"
-                        class="inline-flex cursor-pointer 
-                        px-4 py-3 text-sm font-medium text-gray-800 bg-gray-200 rounded-lg shadow hover:bg-gray-300 transition"
-                    >
-                        Kembali
-                    </button>
-                    <button type="submit"                     
-                        class="inline-flex cursor-pointer
-                        px-4 py-3 text-sm font-medium text-white bg-cyan-500 rounded-lg shadows hover:bg-cyan-600 transition"
-                    >
-                    <span>{{ isEdit ? 'Update' : 'Kirim' }}</span>
-                    </button>
-                </div>
-            </form>
+                    <FieldInput 
+                        label="Harga"
+                        type="number"
+                        placeholder="Masukkan harga"
+                        v-model="form.price"
+                        required
+                    />
+                    <FieldInput 
+                        label="SKU"
+                        type="text"
+                        placeholder="Masukkan SKU"
+                        v-model="form.sku"
+
+                    />
+                    <FieldInput 
+                        label="Barcode"
+                        type="text"
+                        placeholder="Masukkan Barcode"
+                        v-model="form.barcode"
+                    />
+                    <FieldSelect
+                        id="category"
+                        name="category"
+                        v-model="form.category_id"
+                        label="Kategori"
+                        placeholder="Pilih kategori"
+                        :options="categories.map(c => ({
+                            label: c.name,
+                            value: c.id
+                        }))"
+                        required
+                        prefixIcon="mdi:shape"
+                    />
+                    <div class="flex justify-end">
+                        <button type="submit"                     
+                            class="inline-flex cursor-pointer
+                            px-4 py-3 text-sm font-medium text-white bg-cyan-500 rounded-lg shadows hover:bg-cyan-600 transition"
+                        >
+                        <span>{{ isEdit ? 'Update' : 'Kirim' }}</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </Card>
 </template>

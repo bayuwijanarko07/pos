@@ -15,6 +15,7 @@ declare module 'vue' {
     Cart: typeof import('./components/Cart.vue')['default']
     FieldImage: typeof import('./components/FieldImage.vue')['default']
     FieldInput: typeof import('./components/FieldInput.vue')['default']
+    FieldSelect: typeof import('./components/FieldSelect.vue')['default']
     ProductDeleteDialog: typeof import('./components/products/ProductDeleteDialog.vue')['default']
     ProductDetail: typeof import('./components/products/ProductDetail.vue')['default']
     ProductForm: typeof import('./components/products/ProductForm.vue')['default']

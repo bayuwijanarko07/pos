@@ -68,14 +68,14 @@
   }
 
   type Mode = 'list' | 'create' | 'edit' | 'detail'
-  type TabKey = 'category' | 'inventory' | 'location' | 'products'
+  type TabKey = 'products' | 'category' | 'inventory' | 'location'
 
-  const activeTab = ref<TabKey>('category')
+  const activeTab = ref<TabKey>('products')
 
   const tabs: TabItem[] = [
     { key: 'products', label: 'Produk' },
     { key: 'category', label: 'Kategori' },
-    { key: 'inventory', label: 'Inventory' },
+    { key: 'inventory', label: 'Inventori' },
     { key: 'location', label: 'Location' },
   ]
 
