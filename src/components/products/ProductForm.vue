@@ -10,6 +10,13 @@
                     required
                 />
                 <FieldInput 
+                    label="Harga"
+                    type="number"
+                    placeholder="Masukkan harga"
+                    v-model="form.price"
+                    required
+                />
+                <FieldInput 
                     label="SKU"
                     type="text"
                     placeholder="Masukkan SKU"
