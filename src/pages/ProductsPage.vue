@@ -20,29 +20,16 @@
       </button>
     </nav>
 
-    <div class="mt-6">
-      <div v-if="activeTab === 'products'">
+      <div class="mt-6">
         <component
           :is="currentComponent"
-          :mode="uiStore.mode"
-          :selected-id="uiStore.selectedId"
+          :mode="currentMode"
+          :selected-id="selectedId"
           :products="products"
           :categories="categories"
+          :inventories="inventories"
         />
       </div>
-
-      <div v-else-if="activeTab === 'category'">
-        <p class="text-gray-600">Halaman Kategori</p>
-      </div>
-
-      <div v-else-if="activeTab === 'inventory'">
-        <p class="text-gray-600">Halaman Inventory</p>
-      </div>
-
-      <div v-else-if="activeTab === 'location'">
-        <p class="text-gray-600">Halaman Location</p>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -54,14 +41,18 @@
 
   import ProductTable from '@/components/products/ProductTable.vue'
   import ProductForm from '@/components/products/ProductForm.vue'
-  import ProductDetail from '@/components/products/ProductDetail.vue'
+  import CategoryTable from '@/components/category/CategoryTable.vue'
+  import CategoryForm from '@/components/category/CategoryForm.vue'
+  import InventoryTable from '@/components/inventory/InventoryTable.vue'
+  import InventoryForm from '@/components/inventory/InventoryTable.vue'
 
   const productStore = useProductStore()
   const uiStore = useProductUIStore()
 
   onMounted(() => {
-    productStore.fetchCategories()
     productStore.fetchProducts()
+    productStore.fetchCategories()
+    productStore.fetchInventories()
   })
 
   interface TabItem {
@@ -69,36 +60,67 @@
     label: string
   }
 
-  type Mode = 'list' | 'create' | 'edit' | 'detail'
-  type TabKey = 'products' | 'category' | 'inventory' | 'location'
-
-  const activeTab = ref<TabKey>('products')
+  type Mode = 'list' | 'create' | 'edit' 
+  type TabKey = 'products' | 'category' | 'inventory'
 
   const tabs: TabItem[] = [
     { key: 'products', label: 'Produk' },
     { key: 'category', label: 'Kategori' },
     { key: 'inventory', label: 'Inventori' },
-    { key: 'location', label: 'Location' },
   ]
 
-  const componentMap: Record<Mode, Component> = {
-    list: ProductTable,
-    create: ProductForm,
-    edit: ProductForm,
-    detail: ProductDetail,
+  const componentRegistry: Record<TabKey, Record<Mode, Component>> = {
+    products: {
+      list: ProductTable,
+      create: ProductForm,
+      edit: ProductForm,
+    },
+    category: {
+      list: CategoryTable,
+      create: CategoryForm,
+      edit: CategoryForm,
+    },
+    inventory: {
+      list: InventoryTable,
+      create: InventoryForm,
+      edit: InventoryForm,
+    }
   }
 
-  const currentComponent = computed(() => componentMap[uiStore.mode])
+  const currentComponent = computed(() => {
+    return componentRegistry[uiStore.activeModule][currentMode.value]
+  })
+
+  const activeTab = computed({
+    get: () => uiStore.activeModule,
+    set: (val) => uiStore.setModule(val),
+  })
+
+  const currentMode = computed(() => 
+    uiStore.modeMap[uiStore.activeModule]
+  )
+
+  const selectedId = computed(() => 
+    uiStore.selectedIdMap[uiStore.activeModule]
+  )
 
   const pageTitle = computed(() => {
-    switch (uiStore.mode) {
-      case 'create': return 'Tambah Produk'
-      case 'edit': return 'Edit Produk'
-      case 'detail': return 'Detail Produk'
-      default: return 'Produk'
+    const module = uiStore.activeModule
+    const mode = currentMode.value
+
+    const moduleLabelMap = {
+      products: 'Produk',
+      category: 'Kategori',
+      inventory: 'Inventori',
+      location: 'Lokasi',
     }
+
+    if (mode === 'create') return `Tambah ${moduleLabelMap[module]}`
+    if (mode === 'edit') return `Edit ${moduleLabelMap[module]}`
+    return moduleLabelMap[module]
   })
 
   const products = computed(() => productStore.products)
   const categories = computed(() => productStore.categories)
+  const inventories = computed(() => productStore.inventories)
 </script>

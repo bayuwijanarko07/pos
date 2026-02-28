@@ -1,17 +1,7 @@
 <template>
-    <div class="py-2">
-        <button
-            type="button"
-            @click="back"
-            class="inline-flex cursor-pointer 
-            px-4 py-3 text-sm font-medium text-gray-800 bg-white rounded-lg hover:bg-gray-300 transition"
-        >
-            <Icon icon="mdi:chevron-left" />
-        </button>
-    </div>
     <div class="relative flex lg:flex-row flex-col gap-8">
         <div class="lg:w-3/4 lg:grid">
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-5">
                 <label class="font-medium text-gray-600">
                     Informasi Produk
                 </label>
@@ -60,6 +50,7 @@
                             label="Persediaan"
                             type="number"
                             placeholder="Masukkan Persediaan"
+                            v-model="form.stock"
                             disabled
                         />
                         <ToggleSwitch 
@@ -69,19 +60,27 @@
                             statusText
                         />
                     </div>
-                    <div class="flex justify-end mt-5">
+                    <div class="flex justify-end mt-5 gap-2">
+                        <button
+                            type="button"
+                            @click="back()"
+                            class="inline-flex cursor-pointer 
+                            px-4 py-3 text-sm font-medium text-gray-800 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                        >
+                            <span>Batal</span>
+                        </button>
                         <button type="submit"                     
                             class="inline-flex cursor-pointer
                             px-4 py-3 text-sm font-medium text-white bg-cyan-500 rounded-lg shadows hover:bg-cyan-600 transition"
                         >
-                        <span>{{ isEdit ? 'Update' : 'Kirim' }}</span>
+                            <span>{{ isEdit ? 'Update' : 'Kirim' }}</span>
                         </button>
                     </div>
                 </form>
             </div>
         </div>
         <div class="lg:w-1/4 lg:grid">
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-5">
                 <label class="font-medium text-gray-600">
                     Gambar Produk
                 </label>
@@ -112,7 +111,6 @@
     import { useProductUIStore } from '@/stores/product-ui'
 
     const productStore = useProductStore()
-
     
     const props = defineProps<{
         mode: 'create' | 'edit'
@@ -129,6 +127,7 @@
         barcode: '',
         price: 0,
         category_id: '', 
+        stock: 0,
         image_url: '',
         is_active: true,
     })
@@ -173,6 +172,7 @@
                 form.sku = prod.sku
                 form.category_id = prod.category_id
                 form.image_url = prod.image_url
+                form.stock = prod.stock
                 form.is_active = prod.is_active ?? true
                 previewUrl.value = prod.image_url || ''
                 file.value = null

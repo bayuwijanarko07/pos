@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
-import type { Product, Category, ProductRow } from '@/types/product'
+import type { Product, Category, ProductRow, Inventory } from '@/types/product'
 import { uploadProductImage } from '@/lib/storage'
 
 export const useProductStore = defineStore('product', {
@@ -8,6 +8,7 @@ export const useProductStore = defineStore('product', {
         products: [] as Product[],
         productMap: {} as Record<string, Product>,
         categories: [] as Category[],
+        inventories: [] as Inventory[],
         selectedCategory: 'all' as string,
         isLoading: false,
         isFetched: false,
@@ -17,6 +18,7 @@ export const useProductStore = defineStore('product', {
     getters: {
         allProducts: (state) => Object.values(state.productMap),
         allCategories: (state) => state.categories,
+        allInventories: (state) => state.inventories,
 
         getProductById: (state) => (id: string) => {
             return state.productMap[id]
@@ -70,9 +72,6 @@ export const useProductStore = defineStore('product', {
             const { data, error } = await supabase
                 .from('products')
                 .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name),inventories(stock)`)
-                .eq('is_active', true)
-
-            console.log(data)
 
             if (error) {
                 this.error = error.message
@@ -99,7 +98,7 @@ export const useProductStore = defineStore('product', {
 
             const { data, error } = await supabase
                 .from('categories')
-                .select('id, name')
+                .select('id, name, created_at')
 
             if (error) {
                 this.error = error.message
@@ -108,6 +107,28 @@ export const useProductStore = defineStore('product', {
             }
 
             this.categories = data ?? []
+        },
+
+        async fetchInventories(force = false) {
+            if (this.inventories.length && !force) return
+
+            const { data, error } = await supabase
+                .from('inventories')
+                .select(`id,product_id,stock,updated_at, products!inner (id,name)`)
+
+            if (error) {
+                this.error = error.message
+                console.error(error)
+                return
+            }
+
+            this.inventories = (data ?? []).map((inv: any) => ({
+                id: inv.id,
+                product_id: inv.product_id,
+                stock: inv.stock,
+                updated_at: inv.updated_at,
+                name: inv.products?.name ?? '-'
+            }))
         },
 
         async createProduct(payload: {

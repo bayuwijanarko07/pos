@@ -2,7 +2,7 @@
     <Card class="pt-2">
         <div class="flex flex-col gap-4 m-6 mb-4 sm:flex-row sm:items-center sm:justify-between">
             <h3 class="text-base font-medium text-gray-800">
-                Daftar Produk
+                Daftar Inventori
             </h3>
             <div class="flex items-center gap-3">
                 <FieldInput 
@@ -29,43 +29,18 @@
                             </th>
                             <th class="px-5 py-3 sm:px-6">
                                 <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">Nama</p>
+                                    <p class="font-medium text-gray-500 text-xs">Produk</p>
                                 </div>
                             </th>
                             <th class="px-5 py-3 sm:px-6">
                                 <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">Kategori</p>
+                                    <p class="font-medium text-gray-500 text-xs">Persediaan</p>
                                 </div>
                             </th>
                             <th class="px-5 py-3 sm:px-6">
                                 <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">SKU</p>
+                                    <p class="font-medium text-gray-500 text-xs">Diubah pada</p>
                                 </div>
-                            </th>
-                            <th class="px-5 py-3 sm:px-6">
-                                <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">No Barcode</p>
-                                </div>
-                            </th>
-                            <th class="px-5 py-3 sm:px-6">
-                                <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">Harga</p>
-                                </div>
-                            </th>
-                            <th class="px-5 py-3 sm:px-6">
-                                <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">Stock</p>
-                                </div> 
-                            </th>
-                            <th class="px-5 py-3 sm:px-6">
-                                <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">Status</p>
-                                </div> 
-                            </th>
-                            <th class="px-5 py-3 sm:px-6">
-                                <div class="flex items-center">
-                                    <p class="font-medium text-gray-500 text-xs">Dibuat Pada</p>
-                                </div> 
                             </th>
                             <th class="px-5 py-3 sm:px-6">
                                 <div class="flex items-center">
@@ -76,8 +51,8 @@
                     </thead>
                     <tbody class="divide-y divide-gray-800">
                         <tr 
-                            v-for="(prod, index) in products" 
-                            :key="prod.id"
+                            v-for="(inv, index) in inventories" 
+                            :key="inv.id"
                         >
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center">
@@ -89,70 +64,28 @@
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center">
                                     <p class="text-gray-500 text-sm">
-                                        {{prod.name}}
+                                        {{ inv.name || '-' }}
+                                    </p>
+                                </div>
+                            </td>
+                             <td class="px-6 py-3.5">
+                                <div class="flex items-center">
+                                    <p class="text-gray-500 text-sm">
+                                        {{inv.stock}}
                                     </p>
                                 </div>
                             </td>
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center">
                                     <p class="text-gray-500 text-sm">
-                                        {{prod.category}}
-                                    </p>
-                                </div>
-                            </td>
-                            <td class="px-6 py-3.5">
-                                <div class="flex items-center">
-                                    <p class="text-gray-500 text-sm">
-                                        {{prod.sku}}
-                                    </p>
-                                </div>
-                            </td>
-                            <td class="px-6 py-3.5">
-                                <div class="flex items-center">
-                                    <p class="text-gray-500 text-sm">
-                                        {{prod.barcode}}
-                                    </p>
-                                </div>
-                            </td>
-                            <td class="px-6 py-3.5">
-                                <div class="flex items-center">
-                                    <p class="text-gray-500 text-sm">
-                                        {{prod.price}}
-                                    </p>
-                                </div>
-                            </td>
-                            <td class="px-6 py-3.5">
-                                <div class="flex items-center">
-                                    <p class="text-gray-500 text-sm">
-                                        {{prod.stock}}
-                                    </p>
-                                </div>
-                            </td>
-                            <td class="px-6 py-3.5">
-                                <div class="flex items-center">
-                                    <p class="text-gray-500 text-sm">
-                                        <span 
-                                            :class="prod.is_active 
-                                                ? 'bg-green-100 text-green-600' 
-                                                : 'bg-red-100 text-red-600'"
-                                            class="px-2 py-1 rounded text-xs font-medium"
-                                        >
-                                            {{ prod.is_active ? 'Aktif' : 'Nonaktif' }}
-                                        </span>
-                                    </p>
-                                </div>
-                            </td>
-                            <td class="px-6 py-3.5">
-                                <div class="flex items-center">
-                                    <p class="text-gray-500 text-sm">
-                                        {{prod.created_at}}
+                                        {{inv.updated_at}}
                                     </p>
                                 </div>
                             </td>
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center gap-1">
                                     <button 
-                                        @click="openEdit(prod.id)"
+                                        @click="openEdit(inv.id)"
                                         class="rounded bg-yellow-400 p-1 text-white text-sm cursor-pointer">
                                         <Icon icon="mdi:edit" class="w-4 h-4"/>
                                     </button>
@@ -170,13 +103,13 @@
     </Card>
 </template>
 <script setup lang="ts">
-    import type { Product, Category } from '@/types/product'
+    import type { Product, Inventory } from '@/types/product'
     import { useProductUIStore } from '@/stores/product-ui'
     const { openCreate, openEdit } = useProductUIStore()
 
     interface Props {
         products: Product[]
-        categories: Category[]
+        inventories: Inventory[]
     }
 
     const props = defineProps<Props>()

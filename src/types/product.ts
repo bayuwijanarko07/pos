@@ -16,6 +16,15 @@ export interface Product {
 export interface Category {
   id: string
   name: string
+  created_at: string
+}
+
+export interface Inventory {
+  id: string
+  product_id: string
+  stock: number   
+  updated_at: string
+  name: string
 }
 
 export interface ProductRow {

@@ -1,53 +1,71 @@
 import { defineStore } from 'pinia'
 
+export type Mode = 'list' | 'create' | 'edit'
+export type ModuleKey = 'products' | 'category' | 'inventory'
+
 export const useProductUIStore = defineStore('product-ui', () => {
-  const mode = ref<'list' | 'create' | 'edit' | 'detail' >('list')
-  const selectedId = ref<string | null>(null)
-  const deleteId = ref<string | null>(null)
+  const activeModule = ref<ModuleKey>('products')
 
-  function reset() {
-    selectedId.value = null
+  const modeMap = ref<Record<ModuleKey, Mode>>({
+    products: 'list',
+    category: 'list',
+    inventory: 'list',
+  })
+
+  const selectedIdMap = ref<Record<ModuleKey, string | null>>({
+    products: null,
+    category: null,
+    inventory: null,
+  })
+
+  const deleteIdMap = ref<Record<ModuleKey, string | null>>({
+    products: null,
+    category: null,
+    inventory: null,
+  })
+
+  function setModule(module: ModuleKey) {
+    activeModule.value = module
   }
 
-  function openCreate() {
-    mode.value = 'create'
-    reset()
+  function reset(module: ModuleKey = activeModule.value) {
+    selectedIdMap.value[module] = null
   }
 
-  function openEdit(id: string) {
-    mode.value = 'edit'
-    selectedId.value = id
+  function openCreate(module: ModuleKey = activeModule.value) {
+    modeMap.value[module] = 'create'
+    reset(module)
   }
 
-  function openDetail(id: string) {
-    mode.value = 'detail'
-    selectedId.value = id
+  function openEdit(id: string, module: ModuleKey = activeModule.value) {
+    modeMap.value[module] = 'edit'
+    selectedIdMap.value[module] = id
   }
 
-
-  function back() {
-    mode.value = 'list'
-    reset()
+  function back(module: ModuleKey = activeModule.value) {
+    modeMap.value[module] = 'list'
+    reset(module)
   }
 
-  function openDelete(id: string) {
-    deleteId.value = id
+  function openDelete(id: string, module: ModuleKey = activeModule.value) {
+    deleteIdMap.value[module] = id
   }
 
-  function afterDelete() {
-    mode.value = 'list'
-    reset()
+  function afterDelete(module: ModuleKey = activeModule.value) {
+    modeMap.value[module] = 'list'
+    reset(module)
   }
 
   return {
-    mode,
-    selectedId,
+    activeModule,
+    modeMap,
+    selectedIdMap,
+    deleteIdMap,
+    setModule,
     openCreate,
-    openDelete,
     openEdit,
-    openDetail,
+    openDelete,
     back,
     afterDelete,
   }
-
 })
