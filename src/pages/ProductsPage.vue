@@ -27,6 +27,7 @@
           :mode="uiStore.mode"
           :selected-id="uiStore.selectedId"
           :products="products"
+          :categories="categories"
         />
       </div>
 
@@ -59,6 +60,7 @@
   const uiStore = useProductUIStore()
 
   onMounted(() => {
+    productStore.fetchCategories()
     productStore.fetchProducts()
   })
 
@@ -98,4 +100,5 @@
   })
 
   const products = computed(() => productStore.products)
+  const categories = computed(() => productStore.categories)
 </script>

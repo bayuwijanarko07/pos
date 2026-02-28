@@ -2,8 +2,8 @@ import { defineStore } from 'pinia'
 
 export const useProductUIStore = defineStore('product-ui', () => {
   const mode = ref<'list' | 'create' | 'edit' | 'detail' >('list')
-  const selectedId = ref<number | null>(null)
-  const deleteId = ref<number | null>(null)
+  const selectedId = ref<string | null>(null)
+  const deleteId = ref<string | null>(null)
 
   function reset() {
     selectedId.value = null
@@ -14,12 +14,12 @@ export const useProductUIStore = defineStore('product-ui', () => {
     reset()
   }
 
-  function openEdit(id: number) {
+  function openEdit(id: string) {
     mode.value = 'edit'
     selectedId.value = id
   }
 
-  function openDetail(id: number) {
+  function openDetail(id: string) {
     mode.value = 'detail'
     selectedId.value = id
   }
@@ -30,7 +30,7 @@ export const useProductUIStore = defineStore('product-ui', () => {
     reset()
   }
 
-  function openDelete(id: number) {
+  function openDelete(id: string) {
     deleteId.value = id
   }
 

@@ -76,7 +76,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-800">
                         <tr 
-                            v-for="(prod, index) in productStore.products" 
+                            v-for="(prod, index) in products" 
                             :key="prod.id"
                         >
                             <td class="px-6 py-3.5">
@@ -176,14 +176,14 @@
     </Card>
 </template>
 <script setup lang="ts">
-    import { useProductStore } from '@/stores/products'
+    import type { Product, Category } from '@/types/product'
     import { useProductUIStore } from '@/stores/product-ui'
-
-    const productStore = useProductStore()
     const { openCreate, openEdit, openDetail } = useProductUIStore()
 
-    onMounted(async () => {
-        await productStore.fetchCategories()
-        await productStore.fetchProducts()
-    })
+    interface Props {
+        products: Product[]
+        categories: Category[]
+    }
+
+    const props = defineProps<Props>()
 </script>
