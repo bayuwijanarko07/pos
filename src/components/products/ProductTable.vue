@@ -151,12 +151,12 @@
                             </td>
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center gap-1">
-                                    <button 
+                                    <!-- <button 
                                         @click="openDetail(prod.id)"
                                         class="rounded bg-gray-400 p-1 text-white text-sm cursor-pointer"
                                     >
                                         <Icon icon="mdi:eye" class="w-4 h-4"/>
-                                    </button>
+                                    </button> -->
                                     <button 
                                         @click="openEdit(prod.id)"
                                         class="rounded bg-yellow-400 p-1 text-white text-sm cursor-pointer">

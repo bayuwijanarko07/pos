@@ -3,7 +3,7 @@
         <label
             v-if="label"
             :for="id"
-            class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400"
+            class="mb-1.5 block text-sm font-medium text-gray-700"
         >
             {{ label }}
             <span v-if="required" class="text-red-500">*</span>
@@ -38,7 +38,7 @@
             <button
                 v-if="isPassword"
                 type="button"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500"
                 @click="togglePassword"
             >
                 <Icon :icon="showPassword ? 'mdi:eye-off' : 'mdi:eye'" />

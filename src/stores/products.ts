@@ -152,12 +152,7 @@ export const useProductStore = defineStore('product', {
 
                 const { data, error } = await supabase
                     .from('products')
-                    .select(`
-                        id,name,sku,price,image_url,barcode,
-                        is_active,category_id,created_at,
-                        categories(id,name),
-                        inventories(stock)
-                    `)
+                    .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name),inventories(stock)`)
                     .eq('id', inserted.id)
                     .single()
 
@@ -200,7 +195,7 @@ export const useProductStore = defineStore('product', {
                     .from('products')
                     .update(updatePayload)
                     .eq('id', id)
-                    .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name)`)
+                    .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name),inventories(stock)`)
                     .single()
 
                     if (error) {
