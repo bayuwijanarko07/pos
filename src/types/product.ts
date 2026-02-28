@@ -20,11 +20,21 @@ export interface Category {
 }
 
 export interface Inventory {
-  id: string
-  product_id: string
-  stock: number   
-  updated_at: string
-  name: string
+    id: string
+    product_id: string
+    stock: number
+    updated_at?: string
+}
+
+export type InventoryInsert = {
+    product_id: string
+    stock: number
+}
+
+export type InventoryUpdate = {
+    id: string
+    product_id: string
+    stock: number
 }
 
 export interface ProductRow {

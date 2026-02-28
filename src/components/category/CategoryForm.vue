@@ -3,7 +3,7 @@
         <div class="lg:w-3/4 lg:grid">
             <div class="flex flex-col gap-5">
                 <label class="font-medium text-gray-600">
-                    Informasi Produk
+                    Informasi Kategori
                 </label>
                 <form class="rounded-xl bg-white p-5" @submit.prevent="submit">
                     <div class="grid grid-cols-2 gap-4">

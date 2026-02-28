@@ -44,7 +44,7 @@
   import CategoryTable from '@/components/category/CategoryTable.vue'
   import CategoryForm from '@/components/category/CategoryForm.vue'
   import InventoryTable from '@/components/inventory/InventoryTable.vue'
-  import InventoryForm from '@/components/inventory/InventoryTable.vue'
+  import InventoryForm from '@/components/inventory/InventoryForm.vue'
 
   const productStore = useProductStore()
   const uiStore = useProductUIStore()

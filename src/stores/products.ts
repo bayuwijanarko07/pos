@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { supabase } from '@/lib/supabase'
-import type { Product, Category, ProductRow, Inventory } from '@/types/product'
+import type { Product, Category, ProductRow, Inventory, InventoryUpdate, InventoryInsert} from '@/types/product'
 import { uploadProductImage } from '@/lib/storage'
 
 export const useProductStore = defineStore('product', {
@@ -44,6 +44,8 @@ export const useProductStore = defineStore('product', {
 
     actions: {
         mapRow(row: ProductRow): Product {
+            const totalStock =
+            row.inventories?.reduce((sum, inv) => sum + (inv.stock ?? 0), 0) ?? 0
             return {
                 id: row.id,
                 name: row.name,
@@ -55,7 +57,7 @@ export const useProductStore = defineStore('product', {
                 created_at: row.created_at,
                 category_id: row.category_id,
                 category: (row.categories as any)?.name ?? '',
-                stock: row.inventories?.[0]?.stock ?? 0,
+                stock: totalStock,
             }
         },
 
@@ -138,6 +140,7 @@ export const useProductStore = defineStore('product', {
             price: number
             image_url?: string
             category_id: string
+            stock?: number
             file?: File
         }) {
             this.error = null
@@ -150,6 +153,7 @@ export const useProductStore = defineStore('product', {
                     sku: payload.sku,
                     barcode: payload.barcode,
                     price: payload.price,
+                    // cost: payload.cost ?? 0,
                     category_id: payload.category_id,
                     is_active: true,
                     image_url: ''
@@ -158,7 +162,9 @@ export const useProductStore = defineStore('product', {
                 .single()
 
                 if (insertError) throw insertError
-      
+                
+                const productId = inserted.id
+
                 let imageUrl = ''
 
                 if (payload.file) {
@@ -171,21 +177,24 @@ export const useProductStore = defineStore('product', {
                         .eq('id', inserted.id)
                 }
 
+                 await supabase.from('inventories').insert({
+                    product_id: productId,
+                    stock: payload.stock ?? 0,
+                })
+
                 const { data, error } = await supabase
                     .from('products')
                     .select(`id,name,sku,price,image_url,barcode,is_active,category_id,created_at,categories(id,name),inventories(stock)`)
-                    .eq('id', inserted.id)
+                    .eq('id', productId)
                     .single()
 
                     if (error) throw error
 
                     const newProduct = this.mapRow(data as ProductRow)
-
                     this.productMap[newProduct.id] = newProduct
                     this.syncProductsArray()
 
                     return newProduct
-
             } catch (err: any) {
                 this.error = err.message
                 throw err
@@ -231,6 +240,143 @@ export const useProductStore = defineStore('product', {
                     this.syncProductsArray()
 
                     return updatedProduct
+            } catch (err: any) {
+                this.error = err.message
+                throw err
+            }
+        },
+
+        async createCategory(payload: { name: string }) {
+            this.error = null
+            try {
+                const { data, error } = await supabase
+                    .from('categories')
+                    .insert({
+                        name: payload.name,
+                    })
+                    .select()
+                    .single()
+
+                if (error) throw error
+
+                this.categories.push(data)
+                return data
+            } catch (err: any) {
+                this.error = err.message
+                throw err
+            }
+        },
+
+        async updateCategory(id: string, payload: { name: string }) {
+            this.error = null
+            try {
+                const { data, error } = await supabase
+                    .from('categories')
+                    .update({
+                        name: payload.name,
+                    })
+                    .eq('id', id)
+                    .select()
+                    .single()
+
+                if (error) throw error
+
+                const index = this.categories.findIndex(c => c.id === id)
+                if (index !== -1) {
+                    this.categories[index] = data
+                }
+
+                Object.values(this.productMap).forEach(p => {
+                    if (p.category_id === id) {
+                        p.category = data.name
+                    }
+                })
+
+                return data
+            } catch (err: any) {
+                this.error = err.message
+                throw err
+            }
+        },
+
+        async createInventory(payload: InventoryInsert) {
+            this.error = null
+            try {
+                const { data, error } = await supabase
+                    .from('inventories')
+                    .insert({
+                        product_id: payload.product_id,
+                        stock: payload.stock,
+                    })
+                    .select()
+                    .single()
+
+                if (error) {
+                    this.error = error.message
+                    throw error
+                }
+
+                this.inventories.push({
+                    id: data.id,
+                    product_id: data.product_id,
+                    stock: data.stock,
+                })
+
+                if (data.product_id) {
+                    const product = this.productMap[data.product_id]
+
+                    if (product) {
+                        product.stock = data.stock
+                        this.syncProductsArray()
+                    }
+                }
+
+                return data
+            } catch (err: any) {
+                this.error = err.message
+                throw err
+            }
+        },
+
+        async updateInventory(payload: InventoryUpdate) {
+            this.error = null
+
+            if (!payload.id) {
+                throw new Error('Inventory ID is required for update')
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('inventories')
+                    .update({
+                        product_id: payload.product_id,
+                        stock: payload.stock,
+                    })
+                    .eq('id', payload.id)
+                    .select()
+                    .single()
+
+                if (error) {
+                    this.error = error.message
+                    throw error
+                }
+
+                const index = this.inventories.findIndex(
+                    (inv) => inv.id === payload.id
+                )
+
+                if (index !== -1) {
+                    this.inventories[index] = data
+                }
+
+                const product = this.productMap[data.product_id]
+
+                if (product) {
+                    product.stock = data.stock
+                    this.syncProductsArray()
+                }
+
+                return data
             } catch (err: any) {
                 this.error = err.message
                 throw err

@@ -51,7 +51,7 @@
                     </thead>
                     <tbody class="divide-y divide-gray-800">
                         <tr 
-                            v-for="(inv, index) in inventories" 
+                            v-for="(inv, index) in inventoriesWithName" 
                             :key="inv.id"
                         >
                             <td class="px-6 py-3.5">
@@ -103,8 +103,8 @@
     </Card>
 </template>
 <script setup lang="ts">
-    import type { Product, Inventory } from '@/types/product'
     import { useProductUIStore } from '@/stores/product-ui'
+    import type { Product, Inventory } from '@/types/product'
     const { openCreate, openEdit } = useProductUIStore()
 
     interface Props {
@@ -113,4 +113,19 @@
     }
 
     const props = defineProps<Props>()
+
+    const productMap = computed(() => {
+        const map: Record<string, Product> = {}
+        for (const p of props.products) {
+            map[p.id] = p
+        }
+        return map
+    })
+
+    const inventoriesWithName = computed(() =>
+        props.inventories.map(inv => ({
+            ...inv,
+            name: productMap.value[inv.product_id]?.name ?? '-'
+        }))
+    )
 </script>
