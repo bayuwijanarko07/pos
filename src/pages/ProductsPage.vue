@@ -49,10 +49,12 @@
   const productStore = useProductStore()
   const uiStore = useProductUIStore()
 
-  onMounted(() => {
-    productStore.fetchProducts()
-    productStore.fetchCategories()
-    productStore.fetchInventories()
+  onMounted(async () => {
+    await Promise.all([
+      productStore.fetchProducts(),
+      productStore.fetchCategories(),
+      productStore.fetchInventories(),
+    ])
   })
 
   interface TabItem {
@@ -120,7 +122,7 @@
     return moduleLabelMap[module]
   })
 
-  const products = computed(() => productStore.products)
+  const products = computed(() => productStore.allProducts)
   const categories = computed(() => productStore.categories)
   const inventories = computed(() => productStore.inventories)
 </script>

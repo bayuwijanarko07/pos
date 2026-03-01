@@ -25,8 +25,7 @@ export const useProductStore = defineStore('product', {
         },
 
         getStock: (state) => (id: string) => {
-            const product = state.products.find(p => p.id === id)
-            return product?.stock ?? 0
+           return state.productMap[id]?.stock ?? 0
         },
 
         filteredProducts(state) {
@@ -63,6 +62,17 @@ export const useProductStore = defineStore('product', {
 
         syncProductsArray() {
             this.products = Object.values(this.productMap)
+        },
+
+        recalculateProductStock(productId: string) {
+            const product = this.productMap[productId]
+            if (!product) return
+
+            const total = this.inventories
+                .filter(inv => inv.product_id === productId)
+                .reduce((sum, inv) => sum + (inv.stock ?? 0), 0)
+
+            product.stock = total
         },
 
         async fetchProducts(force = false) {
@@ -193,7 +203,7 @@ export const useProductStore = defineStore('product', {
                     const newProduct = this.mapRow(data as ProductRow)
                     this.productMap[newProduct.id] = newProduct
                     this.syncProductsArray()
-
+                
                     return newProduct
             } catch (err: any) {
                 this.error = err.message
@@ -323,12 +333,8 @@ export const useProductStore = defineStore('product', {
                 })
 
                 if (data.product_id) {
-                    const product = this.productMap[data.product_id]
-
-                    if (product) {
-                        product.stock = data.stock
-                        this.syncProductsArray()
-                    }
+                    this.recalculateProductStock(data.product_id)
+                    this.syncProductsArray()
                 }
 
                 return data
@@ -366,15 +372,17 @@ export const useProductStore = defineStore('product', {
                 )
 
                 if (index !== -1) {
-                    this.inventories[index] = data
+                    this.inventories[index] = {
+                        ...this.inventories[index],
+                        ...data
+                    }
                 }
 
-                const product = this.productMap[data.product_id]
-
-                if (product) {
-                    product.stock = data.stock
-                    this.syncProductsArray()
+                if (data.product_id) {
+                    this.recalculateProductStock(data.product_id)
                 }
+
+                await this.fetchProducts(true)
 
                 return data
             } catch (err: any) {
