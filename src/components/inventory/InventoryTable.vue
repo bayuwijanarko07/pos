@@ -78,7 +78,7 @@
                             <td class="px-6 py-3.5">
                                 <div class="flex items-center">
                                     <p class="text-gray-500 text-sm">
-                                        {{inv.updated_at}}
+                                        {{ formatDateTime(inv.updated_at) }}
                                     </p>
                                 </div>
                             </td>
@@ -105,6 +105,7 @@
 <script setup lang="ts">
     import { useProductUIStore } from '@/stores/product-ui'
     import type { Product, Inventory } from '@/types/product'
+    import { formatDateTime } from '@/utils/formatDate'
     const { openCreate, openEdit } = useProductUIStore()
 
     interface Props {
