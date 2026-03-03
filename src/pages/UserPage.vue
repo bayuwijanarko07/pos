@@ -34,7 +34,7 @@
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Di Buat Pada</p>
-                        <p class="text-sm font-medium text-gray-800">{{ user?.created_at || '-' }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ formatDateTime(user?.created_at) }}</p>
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Role</p>
@@ -49,6 +49,7 @@
 </template>
 <script setup lang="ts">
     import { supabase } from '@/lib/supabase'
+    import { formatDateTime } from '@/utils/formatDate'
     import FieldImage from '@/components/FieldImage.vue'
 
     type Profile = {
