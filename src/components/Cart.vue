@@ -10,9 +10,9 @@
                 v-for="item in cartStore.cart"
                 :key="item.id"
                 class="flex mb-1 p-1 bg-zinc-50 rounded">
-                <img :src="item.img" :alt="item.title" class="rounded h-10 w-10 mr-2 object-cover">
+                <img :src="item.image_url" :alt="item.image_url" class="rounded h-10 w-10 mr-2 object-cover">
                 <div class="flex flex-col justify-center grow">
-                    <span class="text-xs">{{ item.title }}</span>
+                    <span class="text-xs">{{ item.name }}</span>
                     <span class="text-xs text-gray-400">
                         Rp {{ item.price }}
                     </span>
@@ -54,7 +54,7 @@
     const cartStore = useCartStore()
     const productStore = useProductStore()
 
-    const getStock = (id: number) => {
+    const getStock = (id: string) => {
         return productStore.getStock(id)
     }
 
