@@ -7,6 +7,14 @@
 <script setup lang="ts">
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
+
+onMounted(() => {
+  userStore.fetchUser()
+  userStore.initAuthListener()
+})
 
 const route = useRoute()
 
