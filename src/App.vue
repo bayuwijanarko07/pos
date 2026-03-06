@@ -13,7 +13,6 @@ const userStore = useUserStore()
 
 onMounted(() => {
   userStore.fetchUser()
-  userStore.initAuthListener()
 })
 
 const route = useRoute()

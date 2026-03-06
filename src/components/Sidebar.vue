@@ -43,15 +43,14 @@
         { label: 'Dashboard', path: '/', icon: "mdi:view-dashboard" },
         { label: 'Orders', path: '/orders', icon: "mdi:order-bool-descending-variant" },
         { label: 'Products', path: '/products', icon: "mdi:material" },
-        { label: 'User', path: '/user', icon: "mdi:user" },
         { label: 'Settings', path: '/settings', icon: "mdi:settings" },
     ]
 
     const bottomMenus = computed(() =>
-        menus.filter(menu => ['/user', '/settings'].includes(menu.path))
+        menus.filter(menu => ['/settings'].includes(menu.path))
     )
 
     const topMenus = computed(() =>
-        menus.filter(menu => !['/user', '/settings'].includes(menu.path))
+        menus.filter(menu => !['/settings'].includes(menu.path))
     )
 </script>

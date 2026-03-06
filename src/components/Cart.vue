@@ -108,7 +108,6 @@ const updateQty = (id: string, event: Event): void => {
   }
 }
 
-
 onMounted(async () => {
   if (!orderStore.order) {
     await orderStore.createOrder(userStore.user.id)
