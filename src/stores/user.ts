@@ -5,8 +5,10 @@ import type { User } from '@supabase/supabase-js'
 export interface Profile {
   id: string
   full_name: string | null
+  email: string | null
   phone: string | null
   avatar_url: string | null
+  created_at: string | null
   roles: string[]
 }
 
@@ -62,17 +64,7 @@ export const useUserStore = defineStore('user', {
     async fetchProfile(userId: string) {
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          full_name,
-          phone,
-          avatar_url,
-          user_roles (
-            roles (
-              name
-            )
-          )
-        `)
+        .select(`id,full_name,phone,avatar_url,user_roles (roles (name))`)
         .eq('id', userId)
         .single()
 
@@ -81,14 +73,17 @@ export const useUserStore = defineStore('user', {
         return
       }
 
-      const roles =
-        data.user_roles?.map((r: any) => r.roles.name) ?? []
+      const roles = data.user_roles?.map((r: any) => r.roles.name) ?? []
 
       this.profile = {
-        id: data.id,
+         id: data.id,
         full_name: data.full_name,
         phone: data.phone,
         avatar_url: data.avatar_url,
+
+        email: this.user?.email ?? null,
+        created_at: this.user?.created_at ?? null,
+
         roles
       }
     },

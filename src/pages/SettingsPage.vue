@@ -8,8 +8,8 @@
             <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
                 <div class="grid grid-cols-1 gap-4">
                     <div class="flex items-center gap-4">
-                        <img v-if="user?.avatar_url"
-                            :src="user.avatar_url"
+                        <img v-if="userStore.profile?.avatar_url"
+                            :src="userStore.profile.avatar_url"
                             alt="avatar"
                             class="w-16 h-16 rounded-full object-cover"
                         />
@@ -22,24 +22,24 @@
                     <FieldImage @uploaded="handleAvatarUpdate" />
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Nama</p>
-                        <p class="text-sm font-medium text-gray-800">{{ user?.full_name || '-' }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ userStore.profile?.full_name || '-' }}</p>
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Email</p>
-                        <p class="text-sm font-medium text-gray-800">{{ user?.email || '-' }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ userStore.profile?.email || '-' }}</p>
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Telepon</p>
-                        <p class="text-sm font-medium text-gray-800">{{ user?.phone || '-' }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ userStore.profile?.phone || '-' }}</p>
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Di Buat Pada</p>
-                        <p class="text-sm font-medium text-gray-800">{{ formatDateTime(user?.created_at) }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ formatDateTime(userStore.profile?.created_at) }}</p>
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Role</p>
                         <p class="text-sm font-medium text-gray-800">
-                            {{ user?.roles?.join(', ') || '-' }}
+                            {{ userStore.profile?.roles?.join(', ') || '-' }}
                         </p>
                     </div>
                 </div>
@@ -52,67 +52,25 @@
     import { supabase } from '@/lib/supabase'
     import { formatDateTime } from '@/utils/formatDate'
     import FieldImage from '@/components/FieldImage.vue'
+    import { useUserStore } from '@/stores/user'
+
     const router = useRouter()
+    const userStore = useUserStore()
 
     const logout = async () => {
         await supabase.auth.signOut()
         router.push('/login')
     }
-    
-    type Profile = {
-        id: string
-        full_name: string | null
-        phone: string | null
-        avatar_url: string | null
-        created_at: string
-        email?: string | null
-        roles?: string[]
-    }
 
-    const user = ref<Profile | null>(null)
-    const loading = ref(true)
+    // const handleAvatarUpdate = (url: string) => {
+    //     if (user.value) {
+    //         user.value.avatar_url = url
+    //     }
+    // }
 
-    const fetchProfile = async () => {
-        loading.value = true
+    onMounted(() => {
+        userStore.fetchUser()
+        userStore.initAuthListener()
+    })
 
-        const { data: authData, error: authError } = await supabase.auth.getUser()
-
-        if (authError || !authData.user) {
-            loading.value = false
-            return
-        }
-
-        const authUser = authData.user
-
-        const { data : profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select(`id,full_name,phone,avatar_url,user_roles (roles ( name ))`)
-            .eq('id', authUser.id)
-            .single()
-
-        if (profileError) {
-            console.error(profileError)
-            loading.value = false
-            return
-        }
-
-        const roles = profileData.user_roles.map((r: any) => r.roles.name)
-
-        user.value = {
-            ...profileData,
-            email: authUser.email,
-            created_at: authUser.created_at,
-            roles
-        }
-
-        loading.value = false
-    }
-
-    const handleAvatarUpdate = (url: string) => {
-        if (user.value) {
-            user.value.avatar_url = url
-        }
-    }
-
-    onMounted(fetchProfile)
 </script>

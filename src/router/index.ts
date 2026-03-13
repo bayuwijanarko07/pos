@@ -18,11 +18,6 @@ const routes = [
     meta: { layout: 'default', requiresAuth: true }
   },
   { 
-    path: '/user',
-    component: () => import('@/pages/UserPage.vue'),
-    meta: { layout: 'default', requiresAuth: true }
-  },
-  { 
     path: '/settings', 
     component: () => import('@/pages/SettingsPage.vue'),
     meta: { layout: 'default', requiresAuth: true }
