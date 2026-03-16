@@ -19,7 +19,7 @@
                             <Icon icon="mdi:user" class="text-2xl"/>
                         </div>
                     </div>
-                    <FieldImage @uploaded="handleAvatarUpdate" />
+                    <!-- <FieldImage @uploaded="handleAvatarUpdate" /> -->
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Nama</p>
                         <p class="text-sm font-medium text-gray-800">{{ userStore.profile?.full_name || '-' }}</p>
@@ -34,7 +34,7 @@
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Di Buat Pada</p>
-                        <p class="text-sm font-medium text-gray-800">{{ formatDateTime(userStore.profile?.created_at) }}</p>
+                        <p class="text-sm font-medium text-gray-800">{{ formatDateTime(userStore.profile?.created_at ?? undefined) }}</p>
                     </div>
                     <div>
                         <p class="mb-2 text-xs leading-normal text-gray-500">Role</p>
@@ -51,7 +51,7 @@
 <script setup lang="ts">
     import { supabase } from '@/lib/supabase'
     import { formatDateTime } from '@/utils/formatDate'
-    import FieldImage from '@/components/FieldImage.vue'
+    // import FieldImage from '@/components/FieldImage.vue'
     import { useUserStore } from '@/stores/user'
 
     const router = useRouter()
