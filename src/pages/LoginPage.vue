@@ -39,6 +39,11 @@
                                 <a href="">Lupa katasandi?</a>
                             </div>
                         </div>
+
+                        <div v-if="authLimitStore.isBlocked" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm flex gap-2 items-center">
+                            <Icon icon="mdi:alert-circle" class="w-5 h-5 flex-shrink-0" />
+                            <span>Terlalu banyak percobaan. Silakan coba lagi dalam <b>{{ authLimitStore.remainingSeconds }}</b> detik.</span>
+                        </div>
                         <button type="submit"
                                 :disabled="!canSubmit"
                                 :class="[
@@ -64,8 +69,10 @@
 
 <script lang="ts" setup>
     import { supabase } from '@/lib/supabase'
+    import { useAuthLimitStore } from '@/stores/auth-limit'
 
     const router = useRouter()
+    const authLimitStore = useAuthLimitStore()
 
     const email = ref('')
     const password = ref('')
@@ -73,7 +80,7 @@
     const loading = ref(false)
 
     const canSubmit = computed(() => {
-        return (!loading.value)
+        return (!loading.value && !authLimitStore.isBlocked)
     })
 
     const handleLogin = async () => {
@@ -88,17 +95,19 @@
                 password: password.value
             })
 
-        if (err) {
-            error.value = 'Email atau katasandi salah'
-            return
-        }
+            if (err) {
+                error.value = 'Email atau katasandi salah'
+                authLimitStore.recordAttempt()
+                return
+            }
 
-        if (!data.session) {
-            error.value = 'Gagal membuat sesi login'
-            return
-        }
+            if (!data.session) {
+                error.value = 'Gagal membuat sesi login'
+                return
+            }
 
-        await router.replace('/')
+            authLimitStore.resetAttempts()
+            await router.replace('/')
 
         } catch (e: any) {
             error.value = 'Terjadi kesalahan saat login'
